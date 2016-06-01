@@ -1,0 +1,26 @@
+{
+  "project": {
+    "version": "1.0.0-beta.5",
+    "name": "awscognito-angular2"
+  },
+  "apps": [
+    {
+      "main": "src/main.ts",
+      "tsconfig": "src/tsconfig.json",
+      "mobile": false
+    }
+  ],
+  "addons": [],
+  "packages": [],
+  "test": {
+    "karma": {
+      "config": "config/karma.conf.js"
+    }
+  },
+  "defaults": {
+    "prefix": "app",
+    "sourceDir": "src",
+    "styleExt": "css",
+    "prefixInterfaces": false
+  }
+}

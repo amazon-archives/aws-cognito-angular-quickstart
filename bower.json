@@ -1,0 +1,22 @@
+{
+  "name": "ang2-cognito",
+  "description": "",
+  "main": "",
+  "license": "ISC",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "font-awesome": "fontawesome#^4.6.1",
+    "aws-sdk": "aws-sdk-js#^2.3.7",
+    "jsbn": "^1.3.0",
+    "sjcl": "^1.0.3",
+    "moment": "^2.13.0"
+  }
+}

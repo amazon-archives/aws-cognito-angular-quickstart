@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AwscognitoAngular2</title>
+  <base href="/">
+
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/login-form.css">
+  <link rel="stylesheet" href="css/starter.css">
+
+  <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
+
+  <!-- Scripts -->
+  <script src="bower_components/aws-sdk/dist/aws-sdk.min.js"></script>
+  <script src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+  <!-- Cognito -->
+  <script src="js/aws-cognito-sdk.min.js"></script>
+  <script src="js/amazon-cognito-identity.min.js"></script>
+  <script src="js/sjcl.js"></script>
+  <script src="bower_components/aws-sdk/dist/aws-sdk.min.js"></script>
+  <script src="bower_components/jsbn/jsbn.js"></script>
+  <script src="bower_components/jsbn/jsbn2.js"></script>
+  <script src="bower_components/moment/moment.js"></script>
+  <!-- /Cognito -->
+
+  <!-- /Scripts -->
+  {{#unless environment.production}}
+  <script src="/ember-cli-live-reload.js" type="text/javascript"></script>
+  {{/unless}}
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <awscognito-angular2-app>Loading...</awscognito-angular2-app>
+
+
+
+    {{#each scripts.polyfills}}<script src="{{.}}"></script>{{/each}}
+    <script>
+      System.import('system-config.js').then(function () {
+        System.import('main');
+      }).catch(console.error.bind(console));
+    </script>
+
+
+
+
+
+</body>
+</html>
