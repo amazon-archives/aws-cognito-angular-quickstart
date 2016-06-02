@@ -16,14 +16,15 @@ import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
   {path: '/myprofile', component: MyProfileComponent}
 ])
 export class SecureHomeComponent implements LoggedInCallback {
+
   constructor(public loginService:UserLoginService, public router:Router) {
     loginService.isAuthenticated(this);
     this.router.navigate(['/securehome/myprofile']);
   }
 
   isLoggedIn(message:string, isLoggedIn:boolean) {
-    if (isLoggedIn)
-      this.router.navigate(['/securehome']);
+    if (!isLoggedIn)
+      this.router.navigate(['/home/login']);
   }
 }
 

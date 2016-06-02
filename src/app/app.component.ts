@@ -11,7 +11,7 @@ import {HomeComponent} from "./home.component";
   directives: [ROUTER_DIRECTIVES]
 })
 @Routes([
-  // {path: '/...',  component: HomeComponent},
+  {path: '/',  component: HomeComponent},
   {path: '/home', component: HomeComponent},
   {path: '/securehome', component: SecureHomeComponent}
 ])
@@ -19,8 +19,7 @@ export class AppComponent {
 
   constructor(private router:Router) {
     console.log("In the AppComponent");
-    this.router.navigate(['/home']);
+    // this.router.navigate(['/home']);
   }
-
 
 }

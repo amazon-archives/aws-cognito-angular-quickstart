@@ -1,5 +1,6 @@
 {
   "name": "awscognito-angular2",
+  "author": "Vladimir Budilov",
   "version": "0.0.0",
   "license": "MIT",
   "angular-cli": {},

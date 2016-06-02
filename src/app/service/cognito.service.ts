@@ -209,6 +209,7 @@ export class UserLoginService {
   }
 
   logout() {
+    console.log("Logging out");
     this.cognitoConfigs.userPool.getCurrentUser().signOut();
   }
 
@@ -217,12 +218,10 @@ export class UserLoginService {
 
     if (cognitoUser != null) {
       cognitoUser.getSession(function (err, session) {
-        if (err) {
-          callback.isLoggedIn(err, false);
-        } else {
-          callback.isLoggedIn(err, session.isValid());
-        }
+        callback.isLoggedIn(err, session.isValid());
       });
+    } else {
+      callback.isLoggedIn(null, false);
     }
   }
 

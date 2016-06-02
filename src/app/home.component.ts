@@ -24,6 +24,7 @@ export class AboutComponent {
   directives: [ROUTER_DIRECTIVES]
 })
 @Routes([
+  {path: '/', component: LoginComponent},
   {path: '/about', component: AboutComponent},
   {path: '/login', component: LoginComponent},
   {path: '/register', component: RegisterComponent},
@@ -34,7 +35,5 @@ export class AboutComponent {
 ])
 export class HomeComponent {
   constructor(public router:Router) {
-    this.router.navigate(['/home/about']);
   }
-
 }

@@ -28,6 +28,7 @@ const barrels: string[] = [
   'es6-shim',
   'reflect-metadata',
   'zone.js',
+  'bootstrap',
 
   // App specific barrels.
   'app',

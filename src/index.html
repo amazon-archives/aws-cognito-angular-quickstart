@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>AwscognitoAngular2</title>
+  <title>AWS Cognito User Pools QuickStart</title>
   <base href="/">
 
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
@@ -29,16 +29,15 @@
   <!-- /Cognito -->
 
   <!-- /Scripts -->
-  {{#unless environment.production}}
-  <script src="/ember-cli-live-reload.js" type="text/javascript"></script>
-  {{/unless}}
+  <!--{{#unless environment.production}}-->
+  <!--<script src="/ember-cli-live-reload.js" type="text/javascript"></script>-->
+  <!--{{/unless}}-->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
+
   <awscognito-angular2-app>Loading...</awscognito-angular2-app>
-
-
 
     {{#each scripts.polyfills}}<script src="{{.}}"></script>{{/each}}
     <script>
