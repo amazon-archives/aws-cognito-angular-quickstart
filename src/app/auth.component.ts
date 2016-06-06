@@ -18,8 +18,7 @@ export class RegistrationUser {
 @Component({
   selector: 'awscognito-angular2-app',
   templateUrl: '/app/template/auth/login.html',
-  directives: [ROUTER_DIRECTIVES],
-  styleUrls: ['/css/login-form.css']
+  directives: [ROUTER_DIRECTIVES]
 })
 export class LoginComponent implements CognitoCallback, LoggedInCallback {
   email:string;
@@ -222,8 +221,7 @@ export class ForgotPassword2Component implements CognitoCallback {
   selector: 'awscognito-angular2-app',
   templateUrl: '/app/template/auth/registration.html',
   directives: [ROUTER_DIRECTIVES],
-  providers: [CognitoConfigs, UserRegistrationService],
-  styleUrls: ['/css/login-form.css']
+  providers: [CognitoConfigs, UserRegistrationService]
 })
 export class RegisterComponent implements CognitoCallback {
   registrationUser:RegistrationUser;

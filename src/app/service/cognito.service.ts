@@ -21,10 +21,16 @@ export class CognitoConfigs {
   private _USER_POOL_ID = "us-east-1_PGSbCVZ7S";
   public _CLIENT_ID = "hh5ibv67so0qukt55c5ulaltk";
 
+  private poolData = {
+    UserPoolId: this._USER_POOL_ID,
+    ClientId: this._CLIENT_ID
+  };
+
   public userPool:any;
   public awsCognito:any;
 
   public curUser:string;
+  private cognitoUser:any;
 
   constructor() {
     this.onInit();
@@ -48,14 +54,24 @@ export class CognitoConfigs {
       IdentityPoolId: this._IDENTITY_POOL_ID
     });
 
-    var poolData = {
-      UserPoolId: this._USER_POOL_ID,
-      ClientId: this._CLIENT_ID
-    };
     this.awsCognito = AWSCognito;
-    this.userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(poolData);
+    this.userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(this.poolData);
   }
 
+  public getUser() {
+    var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(this.poolData);
+    this.cognitoUser = userPool.getCurrentUser();
+
+    if (this.cognitoUser != null) {
+      this.cognitoUser.getSession(function(err, session) {
+        if (err) {
+          alert(err);
+          return;
+        }
+        console.log('session validity: ' + session.isValid());
+      });
+  }
+}
 
 }
 
