@@ -1,7 +1,7 @@
 import {Component} from "@angular/core";
 import {ROUTER_DIRECTIVES, Router, RouteSegment} from "@angular/router";
 import {
-  CognitoConfigs,
+  CognitoUtil,
   UserRegistrationService,
   CognitoCallback,
   UserLoginService,
@@ -25,8 +25,8 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
   password:string;
   errorMessage:string;
 
-  constructor(public configs:CognitoConfigs, public loginService:UserLoginService, public router:Router) {
-    console.log("init LoginComponent");
+  constructor(public configs:CognitoUtil, public loginService:UserLoginService, public router:Router) {
+    console.log("LoginComponent constructor");
     loginService.isAuthenticated(this);
     this.onInit();
   }
@@ -92,7 +92,7 @@ export class RegistrationConfirmationComponent {
   email:string;
   errorMessage:string;
 
-  constructor(public configs:CognitoConfigs, public regService:UserRegistrationService, public router:Router, public params:RouteSegment) {
+  constructor(public configs:CognitoUtil, public regService:UserRegistrationService, public router:Router, public params:RouteSegment) {
     this.onInit();
   }
 
@@ -155,7 +155,7 @@ export class ForgotPasswordStep1Component implements CognitoCallback {
   email:string;
   errorMessage:string;
 
-  constructor(public configs:CognitoConfigs, public loginService:UserLoginService, public router:Router) {
+  constructor(public configs:CognitoUtil, public loginService:UserLoginService, public router:Router) {
     this.errorMessage = null;
   }
 
@@ -221,14 +221,14 @@ export class ForgotPassword2Component implements CognitoCallback {
   selector: 'awscognito-angular2-app',
   templateUrl: '/app/template/auth/registration.html',
   directives: [ROUTER_DIRECTIVES],
-  providers: [CognitoConfigs, UserRegistrationService]
+  providers: [UserRegistrationService]
 })
 export class RegisterComponent implements CognitoCallback {
   registrationUser:RegistrationUser;
   router:Router;
   errorMessage:string;
 
-  constructor(public configs:CognitoConfigs, public userRegistration:UserRegistrationService, router:Router) {
+  constructor(public configs:CognitoUtil, public userRegistration:UserRegistrationService, router:Router) {
     this.router = router;
     this.onInit();
   }

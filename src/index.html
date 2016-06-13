@@ -11,6 +11,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/login-form.css">
+  <link rel="stylesheet" href="css/starter.css">
 
   <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
 
@@ -23,32 +24,34 @@
 </head>
 <body>
 
-  <awscognito-angular2-app>Loading...</awscognito-angular2-app>
+<awscognito-angular2-app>Loading...</awscognito-angular2-app>
 
-    {{#each scripts.polyfills}}<script src="{{.}}"></script>{{/each}}
-    <script>
-      System.import('system-config.js').then(function () {
-        System.import('main');
-      }).catch(console.error.bind(console));
-    </script>
+{{#each scripts.polyfills}}
+<script src="{{.}}"></script>
+{{/each}}
+<script>
+  System.import('system-config.js').then(function () {
+    System.import('main');
+  }).catch(console.error.bind(console));
+</script>
 
-  <!-- Scripts -->
-  <script src="bower_components/aws-sdk/dist/aws-sdk.min.js"></script>
-  <script src="bower_components/jquery/dist/jquery.min.js"></script>
-  <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- Scripts -->
+<script src="bower_components/aws-sdk/dist/aws-sdk.min.js"></script>
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 
-  <!-- Cognito -->
-  <script src="js/aws-cognito-sdk.min.js"></script>
-  <script src="js/amazon-cognito-identity.min.js"></script>
-  <script src="js/sjcl.js"></script>
-  <script src="bower_components/aws-sdk/dist/aws-sdk.min.js"></script>
-  <script src="bower_components/jsbn/jsbn.js"></script>
-  <script src="bower_components/jsbn/jsbn2.js"></script>
-  <script src="bower_components/moment/moment.js"></script>
-  <!-- /Cognito -->
+<!-- Cognito -->
+<script src="js/aws-cognito-sdk.min.js"></script>
+<script src="js/amazon-cognito-identity.min.js"></script>
+<script src="js/sjcl.js"></script>
+<script src="bower_components/aws-sdk/dist/aws-sdk.min.js"></script>
+<script src="bower_components/jsbn/jsbn.js"></script>
+<script src="bower_components/jsbn/jsbn2.js"></script>
+<script src="bower_components/moment/moment.js"></script>
+<!-- /Cognito -->
 
-  <!-- Metis Menu Plugin JavaScript -->
-  <script src="bower_components/metisMenu/dist/metisMenu.min.js"></script>
-  <script src="bower_components/startbootstrap-sb-admin-2/dist/js/sb-admin-2.js"></script>
+<!-- Metis Menu Plugin JavaScript -->
+<script src="bower_components/metisMenu/dist/metisMenu.min.js"></script>
+<script src="bower_components/startbootstrap-sb-admin-2/dist/js/sb-admin-2.js"></script>
 </body>
 </html>

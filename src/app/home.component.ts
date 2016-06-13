@@ -1,5 +1,5 @@
 import {Component} from "@angular/core";
-import {Routes, ROUTER_DIRECTIVES, Router} from "@angular/router";
+import {Routes, Router, ROUTER_DIRECTIVES} from "@angular/router";
 import {
   LoginComponent,
   RegisterComponent,
@@ -20,11 +20,22 @@ export class AboutComponent {
 
 @Component({
   selector: 'awscognito-angular2-app',
+  templateUrl: '/app/template/landinghome.html',
+  directives: [ROUTER_DIRECTIVES]
+})
+export class HomeLandingComponent {
+  constructor() {
+
+  }
+}
+
+@Component({
+  selector: 'awscognito-angular2-app',
   templateUrl: '/app/template/home.html',
   directives: [ROUTER_DIRECTIVES]
 })
 @Routes([
-  {path: '/', component: LoginComponent},
+  {path: '/', component: HomeLandingComponent},
   {path: '/about', component: AboutComponent},
   {path: '/login', component: LoginComponent},
   {path: '/register', component: RegisterComponent},
@@ -34,6 +45,7 @@ export class AboutComponent {
   {path: '/forgotPassword', component: ForgotPasswordStep1Component}
 ])
 export class HomeComponent {
-  constructor(public router:Router) {
+  constructor(private router:Router) {
+    console.log("HomeComponent constructor");
   }
 }

@@ -14,7 +14,7 @@ export interface LoggedInCallback {
 }
 
 @Injectable()
-export class CognitoConfigs {
+export class CognitoUtil {
 
   public _REGION = "us-east-1";
 
@@ -34,7 +34,8 @@ export class CognitoConfigs {
   private cognitoUser:any;
 
   constructor() {
-    this.onInit();
+    console.log("CognitoUtil constructor");
+    this.ngOnInit();
   }
 
   reset() {
@@ -43,7 +44,8 @@ export class CognitoConfigs {
     this.curUser = null;
   }
 
-  onInit() {
+  ngOnInit() {
+    console.log("Running ngOnInit in CognitoUtils");
 
     AWS.config.region = this._REGION;
     AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -56,6 +58,7 @@ export class CognitoConfigs {
     });
 
     this.awsCognito = AWSCognito;
+    console.log("Running ngOnInit in CognitoUtils");
     this.userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(this.poolData);
   }
 
@@ -64,22 +67,22 @@ export class CognitoConfigs {
     this.cognitoUser = userPool.getCurrentUser();
 
     if (this.cognitoUser != null) {
-      this.cognitoUser.getSession(function(err, session) {
+      this.cognitoUser.getSession(function (err, session) {
         if (err) {
           alert(err);
           return;
         }
         console.log('session validity: ' + session.isValid());
       });
+    }
   }
-}
 
 }
 
 @Injectable()
 export class UserRegistrationService {
 
-  constructor(public cognitoConfigs:CognitoConfigs) {
+  constructor(public cognitoConfigs:CognitoUtil) {
 
   }
 
@@ -148,11 +151,23 @@ export class UserRegistrationService {
 }
 
 @Injectable()
+export class CognitoCredentialsService {
+
+  constructor() {
+
+  }
+
+  initUnauthenticatedUser() {
+
+  }
+}
+
+@Injectable()
 export class UserLoginService {
 
-  cognitoConfigs:CognitoConfigs;
+  cognitoConfigs:CognitoUtil;
 
-  constructor(cognitoConfigs:CognitoConfigs) {
+  constructor(cognitoConfigs:CognitoUtil) {
     this.cognitoConfigs = cognitoConfigs;
   }
 
