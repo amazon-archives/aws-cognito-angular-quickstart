@@ -19,7 +19,6 @@ export class AppComponent {
 
   constructor(private router:Router) {
     console.log("In the AppComponent");
-    // this.router.navigate(['/home']);
   }
 
 }

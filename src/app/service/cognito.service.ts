@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {RegistrationUser} from "./../auth.component.ts";
 
+
 declare var AWS:any;
 declare var AWSCognito:any;
 
@@ -79,10 +80,6 @@ export class CognitoConfigs {
 export class UserRegistrationService {
 
   constructor(public cognitoConfigs:CognitoConfigs) {
-
-  }
-
-  sendConfirmation() {
 
   }
 
@@ -234,7 +231,10 @@ export class UserLoginService {
 
     if (cognitoUser != null) {
       cognitoUser.getSession(function (err, session) {
-        callback.isLoggedIn(err, session.isValid());
+        if (err)
+          callback.isLoggedIn(null, false);
+        else
+          callback.isLoggedIn(err, session.isValid());
       });
     } else {
       callback.isLoggedIn(null, false);

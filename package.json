@@ -1,8 +1,7 @@
 {
-  "name": "awscognito-angular2",
+  "name": "aws-cognito-angular2-quickstart",
   "author": "Vladimir Budilov",
-  "version": "0.0.0",
-  "license": "MIT",
+  "version": "1.0.0",
   "angular-cli": {},
   "scripts": {
     "start": "ng server",
