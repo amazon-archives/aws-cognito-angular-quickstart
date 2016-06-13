@@ -10,6 +10,7 @@ Cognito Quickstart
 * [npm](https://www.npmjs.com/)
 * [bower](https://bower.io/)
 * [angular-cli](https://github.com/angular/angular-cli)
+
 ## Frameworks
 * [AWS JavaScript SDK](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/browser-intro.html)
 * [Angular 2](https://angular.io/docs/ts/latest/quickstart.html) [(Ionic)](http://ionicframework.com/docs/v2/getting-started/installation/)
