@@ -2,6 +2,7 @@ import {Component} from "@angular/core";
 import {Router, Routes, ROUTER_DIRECTIVES} from "@angular/router";
 import {LogoutComponent} from "./../auth.component";
 import {MyProfileComponent} from "./myprofile.component";
+import {JwtComponent} from "./jwt.component";
 import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
 
 
@@ -14,6 +15,7 @@ import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
 @Routes([
   {path: '/', component: MyProfileComponent},
   {path: '/logout', component: LogoutComponent},
+  {path: '/jwttokens', component: JwtComponent},
   {path: '/myprofile', component: MyProfileComponent}
 ])
 export class SecureHomeComponent implements LoggedInCallback {
@@ -27,4 +29,7 @@ export class SecureHomeComponent implements LoggedInCallback {
       this.router.navigate(['/home/login']);
   }
 }
+
+
+
 

@@ -5,7 +5,8 @@ import {
   UserRegistrationService,
   CognitoCallback,
   UserLoginService,
-  LoggedInCallback
+  LoggedInCallback,
+  CognitoCredentialsService
 } from "./service/cognito.service";
 
 export class RegistrationUser {
@@ -25,7 +26,8 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
   password:string;
   errorMessage:string;
 
-  constructor(public configs:CognitoUtil, public loginService:UserLoginService, public router:Router) {
+  constructor(public configs:CognitoUtil, public loginService:UserLoginService,
+              public cognitoCredentialsService:CognitoCredentialsService, public router:Router) {
     console.log("LoginComponent constructor");
     loginService.isAuthenticated(this);
     this.onInit();
@@ -45,12 +47,13 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
     this.loginService.authenticate(this.email, this.password, this);
   }
 
-  cognitoCallback(message:string) {
+  cognitoCallback(message:string, result:any) {
     if (message != null) { //error
       this.errorMessage = message;
       console.log("result: " + this.errorMessage);
     } else { //success
       //move to the next step
+      this.cognitoCredentialsService.setCredentials(result);
       this.router.navigate(['/securehome']);
     }
   }
