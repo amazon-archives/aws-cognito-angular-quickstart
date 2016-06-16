@@ -347,7 +347,7 @@ export class UserParametersService {
     cognitoUser.getUserAttributes(function(err, result) {
       if (err) {
         console.log("in getParameters: " + err);
-        });
+
       } else {
         callback.callbackWithParam(result);
       }
