@@ -1,7 +1,6 @@
 import {Injectable, Inject} from "@angular/core";
 import {RegistrationUser} from "./../auth.component.ts";
 
-
 declare var AWS:any;
 declare var AWSCognito:any;
 
@@ -13,24 +12,32 @@ export interface LoggedInCallback {
   isLoggedIn(message:string, loggedIn:boolean);
 }
 
+export interface Callback {
+  callback();
+  callbackWithParam(result:any);
+}
+
 export class CognitoCredentials {
 
-  public _ACCESS_KEY : any;
-  public _SECRET_ACCESS_KEY : any;
-  public _SESSION_TOKEN : any;
+  public _ACCESS_KEY:any;
+  public _SECRET_ACCESS_KEY:any;
+  public _SESSION_TOKEN:any;
 
-  public _ACCESS_TOKEN_JWT : any;
-  public _ID_TOKEN_JWT : any;
-  public _REFRESH_TOKEN_JWT : any;
+  public _ACCESS_TOKEN_JWT:string;
+  public _ID_TOKEN_JWT:string;
+  public _REFRESH_TOKEN:any;
 
-  constructor() {};
+  constructor() {
+    console.log("In CognitoCredentials");
+  };
 
 
 }
 @Injectable()
 export class CognitoUtil {
 
-  public cachedCredentials : CognitoCredentials;
+  public credentials = new CognitoCredentials();
+  private authenticatedUser : any;
 
   public _REGION = "us-east-1";
 
@@ -38,32 +45,21 @@ export class CognitoUtil {
   private _USER_POOL_ID = "us-east-1_PGSbCVZ7S";
   public _CLIENT_ID = "hh5ibv67so0qukt55c5ulaltk";
 
-  private poolData = {
+  public poolData = {
     UserPoolId: this._USER_POOL_ID,
     ClientId: this._CLIENT_ID
   };
 
-  public userPool:any;
-  public awsCognito:any;
-
-  public curUser:string;
-
   constructor() {
-    console.log("CognitoUtil constructor");
+    console.log("in CognitoUtil");
     this.ngOnInit();
   }
 
   reset() {
-    this.userPool = null;
-    this.awsCognito = null;
-    this.curUser = null;
-    this.cachedCredentials = null;
+    this.credentials = new CognitoCredentials();
   }
 
   ngOnInit() {
-    console.log("Running ngOnInit in CognitoUtils");
-    this.cachedCredentials = new CognitoCredentials();
-
     AWS.config.region = this._REGION;
     AWS.config.credentials = new AWS.CognitoIdentityCredentials({
       IdentityPoolId: this._IDENTITY_POOL_ID
@@ -73,39 +69,80 @@ export class CognitoUtil {
     AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials({
       IdentityPoolId: this._IDENTITY_POOL_ID
     });
-
-    this.awsCognito = AWSCognito;
-    console.log("Running ngOnInit in CognitoUtils");
-    this.userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(this.poolData);
   }
 
-  public getUser(cognitoCallback:CognitoCallback) {
-    var userPool = new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(this.poolData);
-    var cognitoUser = userPool.getCurrentUser();
+  public getUserPool() {
+    return new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(this.poolData);
 
-    if (cognitoUser != null) {
-      cognitoUser.getSession(function (err, session) {
-        cognitoCallback.cognitoCallback(err, session);
-        //
-        // if (err) {
-        //   console.log(err);
-        //   return;
-        // }
-        // console.log('session validity: ' + session.isValid());
-      });
+  }
+
+  public getCurrentUser() {
+    if (this.authenticatedUser != null)
+      return this.authenticatedUser;
+
+    var curUser = this.getUserPool().getCurrentUser();
+
+    if (curUser == null) {
+      console.log("CurrentUser is null...let's create one");
+      var userData = {
+        Username: 'username',
+        Pool: this.getUserPool()
+      };
+      curUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
     }
+    return curUser;
   }
 
   public getCognitoIdentity() {
     return AWS.config.credentials.identityId;
   }
 
+  setCredentials(cognitoUtils:CognitoUtil, callback:Callback) {
+    cognitoUtils.getCurrentUser().getSession(function (err, session) {
+      if (err)
+        console.log("Can't set the credentials:" + err);
+      else {
+        if (session.isValid()) {
+          cognitoUtils.credentials._ACCESS_TOKEN_JWT = session.getAccessToken().getJwtToken();
+          cognitoUtils.credentials._ID_TOKEN_JWT = session.getIdToken().getJwtToken();
+          cognitoUtils.credentials._REFRESH_TOKEN = session.getRefreshToken();
+
+          AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: cognitoUtils.credentials._ID_TOKEN_JWT,
+            Logins: {
+              // Change the key below according to the specific region your user pool is in.
+              'cognito-idp.us-east-1.amazonaws.com/us-east-1_TcoKGbf7n': cognitoUtils.credentials._ID_TOKEN_JWT
+            }
+          });
+
+          if (callback != null) {
+            callback.callback();
+          }
+
+        }
+      }
+
+
+    });
+  }
+
+  getAccessKeyJwt(cognitoCallback:CognitoCallback) {
+    if (this.getCurrentUser() != null) {
+      this.getCurrentUser().getSession(function (err, session) {
+        if (err) {
+          return;
+        }
+        session.getIdToken().getJwtToken();
+      });
+    }
+
+  }
 }
 
 @Injectable()
 export class UserRegistrationService {
 
-  constructor( @Inject(CognitoUtil) public cognitoConfigs:CognitoUtil) {
+  constructor(@Inject(CognitoUtil) public cognitoConfigs:CognitoUtil) {
 
   }
 
@@ -122,10 +159,10 @@ export class UserRegistrationService {
       Name: 'nickname',
       Value: user.name
     };
-    attributeList.push(new this.cognitoConfigs.awsCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataEmail));
-    attributeList.push(new this.cognitoConfigs.awsCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataNickname));
+    attributeList.push(new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataEmail));
+    attributeList.push(new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataNickname));
 
-    this.cognitoConfigs.userPool.signUp(user.email, user.password, attributeList, null, function (err, result) {
+    this.cognitoConfigs.getUserPool().signUp(user.email, user.password, attributeList, null, function (err, result) {
       if (err) {
         callback.cognitoCallback(err.message, null);
       } else {
@@ -140,7 +177,7 @@ export class UserRegistrationService {
 
     var userData = {
       Username: username,
-      Pool: this.cognitoConfigs.userPool
+      Pool: this.cognitoConfigs.getUserPool()
     };
 
     let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
@@ -157,7 +194,7 @@ export class UserRegistrationService {
   resendCode(username:string, callback:CognitoCallback) {
     var userData = {
       Username: username,
-      Pool: this.cognitoConfigs.userPool
+      Pool: this.cognitoConfigs.getUserPool()
     };
 
     let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
@@ -176,25 +213,26 @@ export class UserRegistrationService {
 @Injectable()
 export class CognitoCredentialsService {
 
-  constructor( @Inject(CognitoUtil) public cognitoUtil:CognitoUtil) {
+  constructor(@Inject(CognitoUtil) public cognitoUtil:CognitoUtil) {
 
   }
 
   setCredentials(result:any) {
 
-    this.cognitoUtil.cachedCredentials._ACCESS_TOKEN_JWT = result.getAccessToken().getJwtToken();
-    this.cognitoUtil.cachedCredentials._ID_TOKEN_JWT = result.getIdToken().getJwtToken();
-    // this.cognitoUtil.cachedCredentials._REFRESH_TOKEN_JWT = result.getRefreshToken().getJwtToken();
+    this.cognitoUtil.credentials._ACCESS_TOKEN_JWT = result.getAccessToken().getJwtToken();
+    this.cognitoUtil.credentials._ID_TOKEN_JWT = result.getIdToken().getJwtToken();
+    // this.cognitoUtil.credentials._REFRESH_TOKEN_JWT = result.getRefreshToken().getJwtToken();
 
     AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-      IdentityPoolId : this.cognitoUtil.cachedCredentials._ID_TOKEN_JWT,
-      Logins : {
+      IdentityPoolId: this.cognitoUtil.credentials._ID_TOKEN_JWT,
+      Logins: {
         // Change the key below according to the specific region your user pool is in.
-        'cognito-idp.us-east-1.amazonaws.com/us-east-1_TcoKGbf7n' : this.cognitoUtil.cachedCredentials._ID_TOKEN_JWT
+        'cognito-idp.us-east-1.amazonaws.com/us-east-1_TcoKGbf7n': this.cognitoUtil.credentials._ID_TOKEN_JWT
       }
     });
 
   }
+
   // initUnauthenticatedUser() {
   //
   // }
@@ -203,7 +241,7 @@ export class CognitoCredentialsService {
 @Injectable()
 export class UserLoginService {
 
-  constructor(  @Inject(CognitoUtil) public cognitoUtil:CognitoUtil) {
+  constructor(@Inject(CognitoUtil) public cognitoUtil:CognitoUtil) {
   }
 
   authenticate(username:string, password:string, callback:CognitoCallback) {
@@ -215,7 +253,7 @@ export class UserLoginService {
 
     var userData = {
       Username: username,
-      Pool: this.cognitoUtil.userPool
+      Pool: this.cognitoUtil.getUserPool()
     };
 
     let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
@@ -233,7 +271,7 @@ export class UserLoginService {
   forgotPassword(username:string, callback:CognitoCallback) {
     var userData = {
       Username: username,
-      Pool: this.cognitoUtil.userPool
+      Pool: this.cognitoUtil.getUserPool()
     };
 
     let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
@@ -254,7 +292,7 @@ export class UserLoginService {
   confirmNewPassword(email:string, verificationCode:string, password:string, callback:CognitoCallback) {
     var userData = {
       Username: email,
-      Pool: this.cognitoUtil.userPool
+      Pool: this.cognitoUtil.getUserPool()
     };
 
     let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
@@ -271,18 +309,22 @@ export class UserLoginService {
 
   logout() {
     console.log("Logging out");
-    this.cognitoUtil.userPool.getCurrentUser().signOut();
+    this.cognitoUtil.getCurrentUser().signOut();
   }
 
   isAuthenticated(callback:LoggedInCallback) {
-    var cognitoUser = this.cognitoUtil.userPool.getCurrentUser();
+    var cognitoUser = this.cognitoUtil.getCurrentUser();
+
 
     if (cognitoUser != null) {
       cognitoUser.getSession(function (err, session) {
         if (err)
           callback.isLoggedIn(null, false);
-        else
+        else {
+          console.log("session: " + session.isValid());
           callback.isLoggedIn(err, session.isValid());
+        }
+
       });
     } else {
       callback.isLoggedIn(null, false);
@@ -291,15 +333,30 @@ export class UserLoginService {
 
 }
 
-// @Injectable
-// export class JwtService {
-//
-//   constructor() {
-//
-//   }
-//
-//   decode(encodedJwtToken:any) {
-//
-//   }
-//
-// }
+@Injectable()
+export class UserParametersService {
+
+  constructor(@Inject(CognitoUtil) public cognitoUtil:CognitoUtil) {
+
+  }
+
+  getParameters(cognitoUtil:CognitoUtil, callback:Callback) {
+
+    var cognitoUser = cognitoUtil.getCurrentUser();
+
+    cognitoUser.getUserAttributes(function(err, result) {
+      if (err) {
+        console.log("in getParameters: " + err);
+        });
+      } else {
+        callback.callbackWithParam(result);
+      }
+    });
+
+  }
+
+  getParameter(name:string, callback:Callback) {
+
+  }
+
+}

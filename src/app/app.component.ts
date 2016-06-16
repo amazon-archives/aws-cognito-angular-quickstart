@@ -1,13 +1,13 @@
 import {Component} from "@angular/core";
 import {Routes, Router, ROUTER_DIRECTIVES} from "@angular/router";
 import {SecureHomeComponent} from "./secure/securehome.component";
-import {UserRegistrationService, CognitoUtil, UserLoginService, CognitoCredentialsService} from "./service/cognito.service";
+import {UserRegistrationService, CognitoUtil, UserLoginService, UserParametersService} from "./service/cognito.service";
 import {HomeComponent} from "./home.component";
 
 @Component({
   selector: 'awscognito-angular2-app',
   templateUrl: '/app/template/app.html',
-  providers: [UserRegistrationService, UserLoginService, CognitoCredentialsService],
+  providers: [UserRegistrationService, UserLoginService, UserParametersService],
   directives: [ROUTER_DIRECTIVES]
 })
 @Routes([
@@ -25,7 +25,7 @@ export class AppComponent {
    */
   constructor(private router:Router, private configs:CognitoUtil) {
     console.log("AppComponent constructor");
-    console.log("Cognito Identity Id: " + configs.getCognitoIdentity());
+    // console.log("Cognito Identity Id: " + configs.getCognitoIdentity());
     // Lets create a cognito id here
 
   }

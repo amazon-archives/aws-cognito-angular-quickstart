@@ -1,9 +1,9 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {Router, Routes, ROUTER_DIRECTIVES} from "@angular/router";
 import {LogoutComponent} from "./../auth.component";
 import {MyProfileComponent} from "./myprofile.component";
 import {JwtComponent} from "./jwt.component";
-import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
+import {LoggedInCallback, UserLoginService, CognitoUtil} from "../service/cognito.service";
 
 
 @Component({
@@ -18,15 +18,24 @@ import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
   {path: '/jwttokens', component: JwtComponent},
   {path: '/myprofile', component: MyProfileComponent}
 ])
-export class SecureHomeComponent implements LoggedInCallback {
+export class SecureHomeComponent implements LoggedInCallback, OnInit {
 
-  constructor(public loginService:UserLoginService, public router:Router) {
-    loginService.isAuthenticated(this);
+  constructor(public loginService:UserLoginService, public cognitoUtil:CognitoUtil,public router:Router) {
+    console.log("in SecureHomeComponent");
+  }
+
+  ngOnInit() {
+    this.loginService.isAuthenticated(this);
   }
 
   isLoggedIn(message:string, isLoggedIn:boolean) {
-    if (!isLoggedIn)
+    if (!isLoggedIn) {
       this.router.navigate(['/home/login']);
+    }
+    else {
+      this.cognitoUtil.setCredentials(this.cognitoUtil, {callbackWithParam(result){}, callback(){}});
+      console.log("token: " + this.cognitoUtil.credentials._ACCESS_TOKEN_JWT);
+    }
   }
 }
 

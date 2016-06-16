@@ -9,4 +9,5 @@ if (environment.production) {
   enableProdMode();
 }
 
-bootstrap(AppComponent, [ROUTER_PROVIDERS, CognitoUtil]);
+var myApp = bootstrap(AppComponent, [ROUTER_PROVIDERS, CognitoUtil]);
+
