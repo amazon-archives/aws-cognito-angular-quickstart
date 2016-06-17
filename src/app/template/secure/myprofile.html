@@ -1,2 +1,7 @@
 <h1 class="page-header">My Profile</h1>
-Welcome
+<div *ngFor="let parameter of parameters" class="panel panel-success">
+  <div class="panel-heading">{{ parameter.name }}</div>
+  <div class="panel-body">
+    <p>{{ parameter.value }}</p>
+  </div>
+</div>

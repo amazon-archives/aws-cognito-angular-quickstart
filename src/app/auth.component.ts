@@ -33,7 +33,6 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
   }
 
   onInit() {
-    console.log("configs: " + this.configs._REGION);
     this.errorMessage = null;
   }
 
@@ -235,7 +234,6 @@ export class RegisterComponent implements CognitoCallback {
   }
 
   onInit() {
-    console.log("configs: " + this.configs._REGION);
     this.registrationUser = new RegistrationUser();
     this.errorMessage = null;
   }

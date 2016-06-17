@@ -1,37 +1,60 @@
 import {Component} from "@angular/core";
-import {LoggedInCallback, UserLoginService, CognitoUtil, UserParametersService, Callback} from "../service/cognito.service";
+import {
+  LoggedInCallback,
+  UserLoginService,
+  CognitoUtil,
+  UserParametersService,
+  Callback
+} from "../service/cognito.service";
 import {Router} from "@angular/router";
+
 
 @Component({
   selector: 'awscognito-angular2-app',
   templateUrl: '/app/template/secure/myprofile.html'
 })
-export class MyProfileComponent implements LoggedInCallback, Callback {
-  public parameters:Array<[string, string]>;
+export class MyProfileComponent implements LoggedInCallback {
 
-  constructor(public loginService:UserLoginService, public cognitoUtil:CognitoUtil, public userService:UserParametersService, public router:Router) {
+  public parameters:Array<Parameters> = [];
+
+  constructor(public loginService:UserLoginService, public cognitoUtil:CognitoUtil, public userParamsService:UserParametersService, public router:Router) {
     loginService.isAuthenticated(this);
-    this.userService.getParameters(this.cognitoUtil, this);
+    console.log("In MyProfileComponent");
+
   }
 
   isLoggedIn(message:string, isLoggedIn:boolean) {
     if (!isLoggedIn) {
-      console.log("In JWTComponent:isLoggedIn:isLoggedIn");
       this.router.navigate(['/home/login']);
     }
-    else {
-      this.cognitoUtil.setCredentials(this.cognitoUtil, null);
 
-    }
+    UserParametersService.getParameters(new GetParametersCallback(this));
+
+  }
+
+}
+
+export class Parameters {
+  name:string;
+  value:string;
+}
+
+export class GetParametersCallback implements Callback {
+
+  constructor(public me:MyProfileComponent) {
+
   }
 
   callback() {
 
   }
+
   callbackWithParam(result:any) {
-    let i : number;
-    for (i = 0; i < result.length; i++) {
-      console.log('attribute ' + result[i].getName() + ' has value ' + result[i].getValue());
+    for (let i = 0; i < result.length; i++) {
+      let parameter = new Parameters();
+      parameter.name = result[i].getName();
+      parameter.value = result[i].getValue();
+      this.me.parameters.push(parameter);
     }
   }
 }

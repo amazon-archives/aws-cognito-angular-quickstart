@@ -20,7 +20,7 @@ import {LoggedInCallback, UserLoginService, CognitoUtil} from "../service/cognit
 ])
 export class SecureHomeComponent implements LoggedInCallback, OnInit {
 
-  constructor(public loginService:UserLoginService, public cognitoUtil:CognitoUtil,public router:Router) {
+  constructor(public loginService:UserLoginService, public cognitoUtil:CognitoUtil, public router:Router) {
     console.log("in SecureHomeComponent");
   }
 
@@ -31,10 +31,6 @@ export class SecureHomeComponent implements LoggedInCallback, OnInit {
   isLoggedIn(message:string, isLoggedIn:boolean) {
     if (!isLoggedIn) {
       this.router.navigate(['/home/login']);
-    }
-    else {
-      this.cognitoUtil.setCredentials(this.cognitoUtil, {callbackWithParam(result){}, callback(){}});
-      console.log("token: " + this.cognitoUtil.credentials._ACCESS_TOKEN_JWT);
     }
   }
 }
