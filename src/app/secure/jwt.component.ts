@@ -16,7 +16,7 @@ export class JwtComponent implements LoggedInCallback {
 
   public stuff:Stuff = new Stuff();
 
-  constructor(public loginService:UserLoginService, public cognitoUtil:CognitoUtil, public router:Router) {
+  constructor(public loginService:UserLoginService, public router:Router) {
     loginService.isAuthenticated(this);
     console.log("in JwtComponent");
 
@@ -25,14 +25,11 @@ export class JwtComponent implements LoggedInCallback {
   isLoggedIn(message:string, isLoggedIn:boolean) {
     if (!isLoggedIn) {
       this.router.navigate(['/home/login']);
+    } else {
+      CognitoUtil.getAccessToken(new AccessTokenCallback(this));
+      CognitoUtil.getIdToken(new IdTokenCallback(this));
     }
-
-    this.cognitoUtil.getAccessToken(new AccessTokenCallback(this));
-    this.cognitoUtil.getIdToken(new IdTokenCallback(this));
-    
   }
-
-
 }
 
 export class AccessTokenCallback implements Callback {

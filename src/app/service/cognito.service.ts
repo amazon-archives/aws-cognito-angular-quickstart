@@ -55,24 +55,26 @@ export class CognitoUtil {
   }
 
   public static getCurrentUser() {
-    let curUser = CognitoUtil.getUserPool().getCurrentUser();
-
-    if (curUser == null) {
-      console.log("CurrentUser is null...let's create one");
-      let userData = {
-        Username: 'username',
-        Pool: CognitoUtil.getUserPool()
-      };
-      curUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-    }
-    return curUser;
+    return CognitoUtil.getUserPool().getCurrentUser();
   }
 
-  public static getCognitoIdentity() {
+  public static setupCognitoIdentity(callback:Callback) {
+    AWS.config.credentials.get(function () {
+      let keys:Array<string> = [];
+
+      // Credentials will be available when this function is called.
+      keys.push(AWS.config.credentials.accessKeyId);
+      keys.push(AWS.config.credentials.secretAccessKey);
+      keys.push(AWS.config.credentials.sessionToken);
+      callback.callbackWithParam(keys);
+    });
+  }
+
+  public static getCognitoIdentity():string {
     return AWS.config.credentials.identityId;
   }
 
-  getAccessToken(callback:Callback):void {
+  public static getAccessToken(callback:Callback):void {
     CognitoUtil.getCurrentUser().getSession(function (err, session) {
       if (err)
         console.log("Can't set the credentials:" + err);
@@ -87,7 +89,7 @@ export class CognitoUtil {
     });
   }
 
-  getIdToken(callback:Callback):void {
+  public static getIdToken(callback:Callback):void {
     CognitoUtil.getCurrentUser().getSession(function (err, session) {
       if (err)
         console.log("Can't set the credentials:" + err);
@@ -102,7 +104,7 @@ export class CognitoUtil {
     });
   }
 
-  getRefreshToken(callback:Callback):void {
+  public static getRefreshToken(callback:Callback):void {
     CognitoUtil.getCurrentUser().getSession(function (err, session) {
       if (err)
         console.log("Can't set the credentials:" + err);
@@ -192,7 +194,7 @@ export class UserRegistrationService {
 @Injectable()
 export class UserLoginService {
 
-  constructor(@Inject(CognitoUtil) public cognitoUtil:CognitoUtil) {
+  constructor() {
   }
 
   authenticate(username:string, password:string, callback:CognitoCallback) {
@@ -292,7 +294,7 @@ export class UserParametersService {
 
     if (cognitoUser != null) {
       cognitoUser.getSession(function (err, session) {
-        if (err || session == null || !session.isValid())
+        if (err)
           console.log("Couldn't retrieve the user");
         else {
           cognitoUser.getUserAttributes(function (err, result) {

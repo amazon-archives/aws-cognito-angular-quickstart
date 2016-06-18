@@ -3,7 +3,7 @@ import {Router, Routes, ROUTER_DIRECTIVES} from "@angular/router";
 import {LogoutComponent} from "./../auth.component";
 import {MyProfileComponent} from "./myprofile.component";
 import {JwtComponent} from "./jwt.component";
-import {LoggedInCallback, UserLoginService, CognitoUtil} from "../service/cognito.service";
+import {LoggedInCallback, UserLoginService, CognitoUtil, Callback} from "../service/cognito.service";
 
 
 @Component({
@@ -20,8 +20,10 @@ import {LoggedInCallback, UserLoginService, CognitoUtil} from "../service/cognit
 ])
 export class SecureHomeComponent implements LoggedInCallback, OnInit {
 
-  constructor(public loginService:UserLoginService, public cognitoUtil:CognitoUtil, public router:Router) {
+  constructor(public loginService:UserLoginService, public router:Router) {
     console.log("in SecureHomeComponent");
+    console.log("cognito identity: " + CognitoUtil.getCognitoIdentity());
+    CognitoUtil.setupCognitoIdentity(new GetKeysCallback(this));
   }
 
   ngOnInit() {
@@ -35,6 +37,21 @@ export class SecureHomeComponent implements LoggedInCallback, OnInit {
   }
 }
 
+export class GetKeysCallback implements Callback {
 
+  constructor(public me:SecureHomeComponent) {
+
+  }
+
+  callback() {
+
+  }
+
+  callbackWithParam(result:any) {
+    for (let i = 0; i < result.length; i++) {
+      console.log("key: " + result[i]);
+    }
+  }
+}
 
 

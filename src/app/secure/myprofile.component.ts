@@ -1,11 +1,5 @@
 import {Component} from "@angular/core";
-import {
-  LoggedInCallback,
-  UserLoginService,
-  CognitoUtil,
-  UserParametersService,
-  Callback
-} from "../service/cognito.service";
+import {LoggedInCallback, UserLoginService, UserParametersService, Callback} from "../service/cognito.service";
 import {Router} from "@angular/router";
 
 
@@ -17,7 +11,7 @@ export class MyProfileComponent implements LoggedInCallback {
 
   public parameters:Array<Parameters> = [];
 
-  constructor(public loginService:UserLoginService, public cognitoUtil:CognitoUtil, public userParamsService:UserParametersService, public router:Router) {
+  constructor(public loginService:UserLoginService, public userParamsService:UserParametersService, public router:Router) {
     loginService.isAuthenticated(this);
     console.log("In MyProfileComponent");
 
@@ -26,10 +20,9 @@ export class MyProfileComponent implements LoggedInCallback {
   isLoggedIn(message:string, isLoggedIn:boolean) {
     if (!isLoggedIn) {
       this.router.navigate(['/home/login']);
+    } else {
+      UserParametersService.getParameters(new GetParametersCallback(this));
     }
-
-    UserParametersService.getParameters(new GetParametersCallback(this));
-
   }
 
 }
