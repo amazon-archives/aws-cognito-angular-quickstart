@@ -15,7 +15,7 @@ export class Stuff {
 })
 export class UseractivityComponent implements LoggedInCallback {
 
-  public stuff:Array<Stuff>= [];
+  public logdata:Array<Stuff>= [];
 
   constructor(public router:Router) {
     UserLoginService.isAuthenticated(this);
@@ -27,7 +27,7 @@ export class UseractivityComponent implements LoggedInCallback {
       this.router.navigate(['/home/login']);
     } else {
       console.log("scanning DDB");
-      DynamoDBService.getLogEntries(this.stuff);
+      DynamoDBService.getLogEntries(this.logdata);
     }
   }
 

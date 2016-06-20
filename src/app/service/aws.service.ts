@@ -22,7 +22,7 @@ export class AwsUtil {
     });
 
     let loginCallback = new LoginCallback(callback);
-    
+
     UserLoginService.isAuthenticated(loginCallback);
   }
 
@@ -50,7 +50,7 @@ export class AwsUtil {
 
     AWS.config.credentials = new AWS.CognitoIdentityCredentials(params);
     AwsUtil.getCognitoId(params);
-    AwsUtil.retrieveCognitoIdentityAccessToken(null);
+    // AwsUtil.retrieveCognitoIdentityAccessToken(null);
   }
 
   public static getCognitoParametersForIdConsolidation(idTokenJwt:string):{} {
@@ -150,25 +150,26 @@ export class DynamoDBService {
   static getLogEntries(mapArray:Array<Stuff>) {
     var params = {
       TableName: 'LoginTrail',
-      ExpressionAttributeNames: {
-        "#userId": AWS.config.credentials.params.IdentityId,
-      },
-
+      KeyConditionExpression: "userId = :userId",
+      ExpressionAttributeValues: {
+        ":userId":AWS.config.credentials.params.IdentityId
+      }
     };
     var docClient = new AWS.DynamoDB.DocumentClient();
-    docClient.scan(params, onScan);
+    docClient.query(params, onQuery);
 
-    function onScan(err, data) {
+    function onQuery(err, data) {
       if (err) {
-        console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+        console.error("Unable to query the table. Error JSON:", JSON.stringify(err, null, 2));
       } else {
         // print all the movies
         console.log("Scan succeeded.");
         data.Items.forEach(function (logitem) {
-          mapArray.push({type: logitem.type, date: logitem.date});
+          mapArray.push({type: logitem.type, date: logitem.activityDate});
           console.log(
+            logitem.userId + " : " +
             logitem.type + ": ",
-            logitem.date);
+            logitem.activityDate);
         });
       }
     }

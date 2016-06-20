@@ -6,9 +6,9 @@
       <th>Name</th>
       <th>Value</th>
     </tr>
-    <tr *ngFor="let parameter of parameters" class="active">
-      <td>{{ parameter.type }}</td>
-      <td>{{ parameter.date }}</td>
+    <tr *ngFor="let item of logdata" class="active">
+      <td>{{ item.type }}</td>
+      <td>{{ item.date }}</td>
     </tr>
   </table>
 </div>

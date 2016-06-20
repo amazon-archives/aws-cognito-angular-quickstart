@@ -20,15 +20,16 @@
         "dynamodb:Query",
         "dynamodb:PutItem",
         "dynamodb:UpdateItem",
-        "dynamodb:DeleteItem",
-        "dynamodb:BatchWriteItem"
+        "dynamodb:DeleteItem"
       ],
       "Resource": [
-        "arn:aws:dynamodb:us-west-2:123456789012:table/LoginTrail"
+        "arn:aws:dynamodb:us-east-1:540403165297:table/LoginTrail"
       ],
       "Condition": {
         "ForAllValues:StringEquals": {
-          "dynamodb:LeadingKeys":  ["${cognito-identity.amazonaws.com:sub}"]
+          "dynamodb:LeadingKeys": [
+            "${cognito-identity.amazonaws.com:sub}"
+          ]
         }
       }
     }
