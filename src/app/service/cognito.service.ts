@@ -183,6 +183,9 @@ export class UserLoginService {
 
   static authenticate(username:string, password:string, callback:CognitoCallback) {
 
+    // Need to provide placeholder keys unless unauthorised user access is enabled for user pool
+    AWSCognito.config.update({accessKeyId: 'anything', secretAccessKey: 'anything'})
+
     let authenticationData = {
       Username: username,
       Password: password,
@@ -202,7 +205,7 @@ export class UserLoginService {
         callback.cognitoCallback(null, result);
       },
       onFailure: function (err) {
-        callback.cognitoCallback(err.stack, null);
+        callback.cognitoCallback(err.message, null);
       },
     });
   }
