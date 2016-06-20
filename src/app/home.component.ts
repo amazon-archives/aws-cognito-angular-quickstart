@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {Routes, Router, ROUTER_DIRECTIVES} from "@angular/router";
 import {
   LoginComponent,
@@ -9,6 +9,8 @@ import {
   ForgotPassword2Component
 } from "./auth.component";
 
+declare let AWS:any;
+declare let AWSCognito:any;
 
 @Component({
   selector: 'awscognito-angular2-app',
@@ -44,8 +46,14 @@ export class HomeLandingComponent {
   {path: '/forgotPassword2/:email', component: ForgotPassword2Component},
   {path: '/forgotPassword', component: ForgotPasswordStep1Component}
 ])
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   constructor(private router:Router) {
     console.log("HomeComponent constructor");
   }
+
+  ngOnInit() {
+
+  }
 }
+
+

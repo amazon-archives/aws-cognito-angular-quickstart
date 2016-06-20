@@ -11,10 +11,9 @@ export class MyProfileComponent implements LoggedInCallback {
 
   public parameters:Array<Parameters> = [];
 
-  constructor(public loginService:UserLoginService, public userParamsService:UserParametersService, public router:Router) {
-    loginService.isAuthenticated(this);
+  constructor(public router:Router) {
+    UserLoginService.isAuthenticated(this);
     console.log("In MyProfileComponent");
-
   }
 
   isLoggedIn(message:string, isLoggedIn:boolean) {
@@ -24,7 +23,6 @@ export class MyProfileComponent implements LoggedInCallback {
       UserParametersService.getParameters(new GetParametersCallback(this));
     }
   }
-
 }
 
 export class Parameters {

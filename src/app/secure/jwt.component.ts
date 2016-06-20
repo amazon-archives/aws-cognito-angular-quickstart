@@ -16,8 +16,8 @@ export class JwtComponent implements LoggedInCallback {
 
   public stuff:Stuff = new Stuff();
 
-  constructor(public loginService:UserLoginService, public router:Router) {
-    loginService.isAuthenticated(this);
+  constructor(public router:Router) {
+    UserLoginService.isAuthenticated(this);
     console.log("in JwtComponent");
 
   }

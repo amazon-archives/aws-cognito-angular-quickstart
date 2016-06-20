@@ -5,7 +5,7 @@
     "Effect":"Allow",
     "Principal": "*",
     "Action":["s3:GetObject"],
-    "Resource":["arn:aws:s3:::budilov-cognito/*"
+    "Resource":["arn:aws:s3:::REPLACE_ME/*"
     ]
   }
   ]

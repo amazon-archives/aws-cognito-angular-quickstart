@@ -7,6 +7,7 @@ import {
   UserLoginService,
   LoggedInCallback
 } from "./service/cognito.service";
+import {DynamoDBService} from "./service/aws.service";
 
 export class RegistrationUser {
   name:string;
@@ -25,10 +26,10 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
   password:string;
   errorMessage:string;
 
-  constructor(public configs:CognitoUtil, public loginService:UserLoginService,
+  constructor(public configs:CognitoUtil,
               public router:Router) {
     console.log("LoginComponent constructor");
-    loginService.isAuthenticated(this);
+    UserLoginService.isAuthenticated(this);
     this.onInit();
   }
 
@@ -42,7 +43,7 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
       return;
     }
     this.errorMessage = null;
-    this.loginService.authenticate(this.email, this.password, this);
+    UserLoginService.authenticate(this.email, this.password, this);
   }
 
   cognitoCallback(message:string, result:any) {
@@ -50,7 +51,6 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
       this.errorMessage = message;
       console.log("result: " + this.errorMessage);
     } else { //success
-      //move to the next step
       this.router.navigate(['/securehome']);
     }
   }
@@ -68,13 +68,13 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
 })
 export class LogoutComponent implements LoggedInCallback {
 
-  constructor(public loginService:UserLoginService, public router:Router) {
-    loginService.isAuthenticated(this)
+  constructor(public router:Router) {
+    UserLoginService.isAuthenticated(this)
   }
 
   isLoggedIn(message:string, isLoggedIn:boolean) {
     if (isLoggedIn) {
-      this.loginService.logout();
+      UserLoginService.logout();
       this.router.navigate(['/home/login']);
     }
 
@@ -155,13 +155,13 @@ export class ForgotPasswordStep1Component implements CognitoCallback {
   email:string;
   errorMessage:string;
 
-  constructor(public configs:CognitoUtil, public loginService:UserLoginService, public router:Router) {
+  constructor(public configs:CognitoUtil, public router:Router) {
     this.errorMessage = null;
   }
 
   onNext() {
     this.errorMessage = null;
-    this.loginService.forgotPassword(this.email, this);
+    UserLoginService.forgotPassword(this.email, this);
   }
 
   cognitoCallback(message:string, result:any) {
@@ -187,7 +187,7 @@ export class ForgotPassword2Component implements CognitoCallback {
   errorMessage:string;
 
 
-  constructor(public loginService:UserLoginService, public router:Router, public params:RouteSegment) {
+  constructor(public router:Router, public params:RouteSegment) {
     this.onInit();
 
     this.email = this.params.getParam('email');
@@ -200,7 +200,7 @@ export class ForgotPassword2Component implements CognitoCallback {
 
   onNext() {
     this.errorMessage = null;
-    this.loginService.confirmNewPassword(this.email, this.verificationCode, this.password, this);
+    UserLoginService.confirmNewPassword(this.email, this.verificationCode, this.password, this);
   }
 
   cognitoCallback(message:string) {

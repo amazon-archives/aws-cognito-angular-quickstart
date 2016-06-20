@@ -1,5 +1,6 @@
 import {Injectable, Inject} from "@angular/core";
 import {RegistrationUser} from "./../auth.component.ts";
+import {AwsUtil, DynamoDBService} from "./aws.service";
 
 declare let AWS:any;
 declare let AWSCognito:any;
@@ -24,7 +25,7 @@ export class CognitoUtil {
   public static _REGION = "us-east-1";
 
   public static _IDENTITY_POOL_ID = "us-east-1:fbe0340f-9ffc-4449-a935-bb6a6661fd53";
-  private static _USER_POOL_ID = "us-east-1_PGSbCVZ7S";
+  public static _USER_POOL_ID = "us-east-1_PGSbCVZ7S";
   public static _CLIENT_ID = "hh5ibv67so0qukt55c5ulaltk";
 
   public static _POOL_DATA = {
@@ -32,22 +33,15 @@ export class CognitoUtil {
     ClientId: CognitoUtil._CLIENT_ID
   };
 
-  constructor() {
-    console.log("in CognitoUtil");
-    this.ngOnInit();
-  }
 
-  ngOnInit() {
-    AWS.config.region = CognitoUtil._REGION;
-    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-      IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID
-    });
-
+  public static setupAwsCognito() {
+    console.log("Setting up Aws Cognito")
     AWSCognito.config.region = CognitoUtil._REGION;
     AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials({
       IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID
     });
   }
+
 
   public static getUserPool() {
     return new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(CognitoUtil._POOL_DATA);
@@ -58,17 +52,6 @@ export class CognitoUtil {
     return CognitoUtil.getUserPool().getCurrentUser();
   }
 
-  public static setupCognitoIdentity(callback:Callback) {
-    AWS.config.credentials.get(function () {
-      let keys:Array<string> = [];
-
-      // Credentials will be available when this function is called.
-      keys.push(AWS.config.credentials.accessKeyId);
-      keys.push(AWS.config.credentials.secretAccessKey);
-      keys.push(AWS.config.credentials.sessionToken);
-      callback.callbackWithParam(keys);
-    });
-  }
 
   public static getCognitoIdentity():string {
     return AWS.config.credentials.identityId;
@@ -98,7 +81,13 @@ export class CognitoUtil {
           if (callback != null) {
             callback.callbackWithParam(session.getIdToken().getJwtToken());
           }
+          if (AwsUtil.firstLogin) {
+            AwsUtil.firstLogin = false;
+            DynamoDBService.writeLogEntry("login");
+          }
 
+        } else {
+          console.log("Got the id token, but the session isn't valid");
         }
       }
     });
@@ -197,7 +186,7 @@ export class UserLoginService {
   constructor() {
   }
 
-  authenticate(username:string, password:string, callback:CognitoCallback) {
+  static authenticate(username:string, password:string, callback:CognitoCallback) {
     let authenticationData = {
       Username: username,
       Password: password,
@@ -210,11 +199,9 @@ export class UserLoginService {
     };
 
     let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function (result) {
-
-
+        AwsUtil.initAwsService(null);
         callback.cognitoCallback(null, result);
       },
       onFailure: function (err) {
@@ -223,7 +210,7 @@ export class UserLoginService {
     });
   }
 
-  forgotPassword(username:string, callback:CognitoCallback) {
+  static forgotPassword(username:string, callback:CognitoCallback) {
     let userData = {
       Username: username,
       Pool: CognitoUtil.getUserPool()
@@ -244,7 +231,7 @@ export class UserLoginService {
     });
   }
 
-  confirmNewPassword(email:string, verificationCode:string, password:string, callback:CognitoCallback) {
+  static confirmNewPassword(email:string, verificationCode:string, password:string, callback:CognitoCallback) {
     let userData = {
       Username: email,
       Pool: CognitoUtil.getUserPool()
@@ -262,19 +249,24 @@ export class UserLoginService {
     });
   }
 
-  logout() {
+  static logout() {
     console.log("Logging out");
+    DynamoDBService.writeLogEntry("logout");
     CognitoUtil.getCurrentUser().signOut();
   }
 
-  isAuthenticated(callback:LoggedInCallback) {
+  static isAuthenticated(callback:LoggedInCallback) {
+    CognitoUtil.setupAwsCognito();
     let cognitoUser = CognitoUtil.getCurrentUser();
 
     if (cognitoUser != null) {
       cognitoUser.getSession(function (err, session) {
-        if (err)
+        if (err) {
+          console.log("Couldn't get the session: " + err, err.stack);
           callback.isLoggedIn(err, false);
+        }
         else {
+          console.log("Session is " + session.isValid());
           callback.isLoggedIn(err, session.isValid());
         }
 
