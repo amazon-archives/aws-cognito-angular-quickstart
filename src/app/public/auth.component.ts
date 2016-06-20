@@ -1,4 +1,4 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {ROUTER_DIRECTIVES, Router, RouteSegment} from "@angular/router";
 import {
   CognitoUtil,
@@ -6,8 +6,8 @@ import {
   CognitoCallback,
   UserLoginService,
   LoggedInCallback
-} from "./service/cognito.service";
-import {AwsUtil} from "./service/aws.service";
+} from "../service/cognito.service";
+import {AwsUtil} from "../service/aws.service";
 
 export class RegistrationUser {
   name:string;
@@ -21,7 +21,7 @@ export class RegistrationUser {
   templateUrl: '/app/template/auth/login.html',
   directives: [ROUTER_DIRECTIVES]
 })
-export class LoginComponent implements CognitoCallback, LoggedInCallback {
+export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit {
   email:string;
   password:string;
   errorMessage:string;
@@ -29,12 +29,12 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
   constructor(public configs:CognitoUtil,
               public router:Router) {
     console.log("LoginComponent constructor");
-    UserLoginService.isAuthenticated(this);
-    this.onInit();
   }
 
-  onInit() {
+  ngOnInit() {
     this.errorMessage = null;
+    console.log("Checking if the user is already authenticated. If so, then redirect to the secure site");
+    UserLoginService.isAuthenticated(this);
   }
 
   onLogin() {
@@ -77,7 +77,7 @@ export class LogoutComponent implements LoggedInCallback {
   isLoggedIn(message:string, isLoggedIn:boolean) {
     if (isLoggedIn) {
       UserLoginService.logout();
-      this.router.navigate(['/home/login']);
+      this.router.navigate(['/home']);
     }
 
     this.router.navigate(['/home']);

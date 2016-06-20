@@ -14,14 +14,21 @@ export class AwsUtil {
    * This is the method that needs to be called in order to init the aws global creds
    */
   static initAwsService(callback:Callback) {
-    console.log("Setting up the region");
-    if (AwsUtil.runningInit) {
-      // Need to make sure I don't get into an infinite loop here, so need to exit if this method is running already
-      console.log("Running init...aborting all other attempts");
-      return;
-    } else {
-      AwsUtil.runningInit = true;
-    }
+
+      if (AwsUtil.runningInit) {
+        // Need to make sure I don't get into an infinite loop here, so need to exit if this method is running already
+        console.log("Aborting running initAwsService()...it's running already.");
+        // instead of aborting here, it's best to put a timer
+        if (callback!=null) {
+          callback.callback();
+          callback.callbackWithParam(null);
+        }
+        return;
+      }
+
+
+    console.log("Running initAwsService()");
+    AwsUtil.runningInit = true;
     AWS.config.region = CognitoUtil._REGION;
     AWSCognito.config.region = CognitoUtil._REGION;
 
@@ -60,14 +67,13 @@ export class AwsUtil {
       AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials({
         IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID
       });
-
-
     }
     AwsUtil.runningInit = false;
 
 
     if (callback != null) {
       callback.callback();
+      callback.callbackWithParam(null);
     }
   }
 
@@ -77,7 +83,7 @@ export class AwsUtil {
     AWS.config.credentials = new AWS.CognitoIdentityCredentials(params);
     AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials(params);
 
-    AWS.config.credentials.get(function(err) {
+    AWS.config.credentials.get(function (err) {
       if (!err) {
         // var id = AWS.config.credentials.identityId;
         if (AwsUtil.firstLogin) {
@@ -102,43 +108,6 @@ export class AwsUtil {
     return params;
   }
 
-  public static getCognitoId(params:{}) {
-
-    UserLoginService.isAuthenticated({
-      isLoggedIn(message:string, loggedIn:boolean): void {
-        if (!loggedIn) {
-          // The user isn't logged in...just get the unauthenticated token
-          params = {
-            IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID /* required */
-          };
-
-          new AWS.CognitoIdentity().getId(params, function (err, data) {
-            if (err) console.log("Couldn't get the cognito id: " + err, err.stack); // an error occurred
-            else     console.log("The unauthenticated cognito id:" + data['IdentityId']);           // successful response
-          });
-        } else {
-
-          CognitoUtil.getIdToken({
-            callback(): void {
-            },
-
-            callbackWithParam(idToken:any): void {
-              console.log("idToken in callback:" + idToken);
-              new AWS.CognitoIdentity().getId(AwsUtil.getCognitoParametersForIdConsolidation(idToken), function (err, data) {
-                if (err) console.log("error in callback to get id: " + err, err.stack); // an error occurred
-
-                else {
-                  console.log("The authenticated cognito id:" + data['IdentityId']);           // successful response
-                }
-
-                ;
-              });
-            }
-          });
-        }
-      }
-    })
-  }
 }
 
 @Injectable()
@@ -191,7 +160,6 @@ export class DynamoDBService {
       }
     };
     DynamoDBService.DDB.putItem(itemParams, function (result) {
-      console.log("putItem result: " + result);
     });
   }
 

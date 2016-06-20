@@ -1,5 +1,5 @@
 import {Injectable, Inject} from "@angular/core";
-import {RegistrationUser} from "./../auth.component.ts";
+import {RegistrationUser} from "../public/auth.component.ts";
 import {AwsUtil, DynamoDBService} from "./aws.service";
 
 declare let AWS:any;
@@ -182,6 +182,7 @@ export class UserLoginService {
   }
 
   static authenticate(username:string, password:string, callback:CognitoCallback) {
+
     let authenticationData = {
       Username: username,
       Password: password,
@@ -195,12 +196,13 @@ export class UserLoginService {
 
     console.log("Authenticating the user");
     let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+    console.log(AWS.config);
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function (result) {
         callback.cognitoCallback(null, result);
       },
       onFailure: function (err) {
-        callback.cognitoCallback(err.message, null);
+        callback.cognitoCallback(err.stack, null);
       },
     });
   }
@@ -248,26 +250,34 @@ export class UserLoginService {
     console.log("Logging out");
     DynamoDBService.writeLogEntry("logout");
     CognitoUtil.getCurrentUser().signOut();
+
   }
 
   static isAuthenticated(callback:LoggedInCallback) {
-    AwsUtil.initAwsService(null);
-    let cognitoUser = CognitoUtil.getCurrentUser();
+    if (callback == null)
+      throw("Callback in isAuthenticated() cannot be null");
 
-    if (cognitoUser != null) {
-      cognitoUser.getSession(function (err, session) {
-        if (err) {
-          console.log("Couldn't get the session: " + err, err.stack);
-          callback.isLoggedIn(err, false);
-        }
-        else {
-          console.log("Session is " + session.isValid());
-          callback.isLoggedIn(err, session.isValid());
-        }
-      });
-    } else {
-      callback.isLoggedIn("Can't retrieve the CurrentUser", false);
-    }
+    AwsUtil.initAwsService({callback() {
+      let cognitoUser = CognitoUtil.getCurrentUser();
+
+      if (cognitoUser != null) {
+        cognitoUser.getSession(function (err, session) {
+          if (err) {
+            console.log("Couldn't get the session: " + err, err.stack);
+            callback.isLoggedIn(err, false);
+          }
+          else {
+            console.log("Session is " + session.isValid());
+            callback.isLoggedIn(err, session.isValid());
+          }
+        });
+      } else {
+        callback.isLoggedIn("Can't retrieve the CurrentUser", false);
+      }
+    }, callbackWithParam() {
+
+    }});
+
   }
 
 }

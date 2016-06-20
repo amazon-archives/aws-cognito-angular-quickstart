@@ -7,7 +7,7 @@ import {
   ResendCodeComponent,
   ForgotPasswordStep1Component,
   ForgotPassword2Component
-} from "./auth.component";
+} from "./public/auth.component";
 import {AwsUtil} from "./service/aws.service";
 
 declare let AWS:any;
@@ -23,7 +23,7 @@ export class AboutComponent {
 
 @Component({
   selector: 'awscognito-angular2-app',
-  templateUrl: '/app/template/landinghome.html',
+  templateUrl: '/app/template/public/landinghome.html',
   directives: [ROUTER_DIRECTIVES]
 })
 export class HomeLandingComponent {
@@ -49,7 +49,6 @@ export class HomeLandingComponent {
 ])
 export class HomeComponent implements OnInit {
   constructor(private router:Router) {
-    AwsUtil.initAwsService(null);
     console.log("HomeComponent constructor");
   }
 

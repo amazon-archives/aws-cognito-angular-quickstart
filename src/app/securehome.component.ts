@@ -1,11 +1,11 @@
 import {Component, OnInit} from "@angular/core";
 import {Router, Routes, ROUTER_DIRECTIVES} from "@angular/router";
-import {LogoutComponent} from "./../auth.component";
-import {MyProfileComponent} from "./myprofile.component";
-import {JwtComponent} from "./jwt.component";
-import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
-import {UseractivityComponent} from "./useractivity.component";
-import {AwsUtil} from "../service/aws.service";
+import {LogoutComponent} from "./public/auth.component";
+import {MyProfileComponent} from "./secure/myprofile.component";
+import {JwtComponent} from "./secure/jwt.component";
+import {LoggedInCallback, UserLoginService} from "./service/cognito.service";
+import {UseractivityComponent} from "./secure/useractivity.component";
+import {AwsUtil} from "./service/aws.service";
 
 
 @Component({
@@ -24,7 +24,6 @@ import {AwsUtil} from "../service/aws.service";
 export class SecureHomeComponent implements OnInit, LoggedInCallback {
 
   constructor(public router:Router) {
-    AwsUtil.initAwsService(null);
     UserLoginService.isAuthenticated(this);
     console.log("in SecureHomeComponent");
   }

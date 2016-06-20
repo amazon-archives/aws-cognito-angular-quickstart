@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {Routes, Router, ROUTER_DIRECTIVES} from "@angular/router";
-import {SecureHomeComponent} from "./secure/securehome.component";
+import {SecureHomeComponent} from "./securehome.component";
 import {UserRegistrationService, UserLoginService, UserParametersService} from "./service/cognito.service";
 import {HomeComponent} from "./home.component";
 import {AwsUtil} from "./service/aws.service";
