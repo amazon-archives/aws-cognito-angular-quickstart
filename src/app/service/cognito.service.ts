@@ -34,15 +34,6 @@ export class CognitoUtil {
   };
 
 
-  public static setupAwsCognito() {
-    console.log("Setting up Aws Cognito")
-    AWSCognito.config.region = CognitoUtil._REGION;
-    AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials({
-      IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID
-    });
-  }
-
-
   public static getUserPool() {
     return new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(CognitoUtil._POOL_DATA);
 
@@ -58,34 +49,35 @@ export class CognitoUtil {
   }
 
   public static getAccessToken(callback:Callback):void {
+    if (callback == null) {
+      throw("callback in getAccessToken is null...returning");
+    }
     CognitoUtil.getCurrentUser().getSession(function (err, session) {
-      if (err)
+      if (err) {
         console.log("Can't set the credentials:" + err);
+        callback.callbackWithParam(null);
+      }
+
       else {
         if (session.isValid()) {
-          if (callback != null) {
             callback.callbackWithParam(session.getAccessToken().getJwtToken());
-          }
-
         }
       }
     });
   }
 
   public static getIdToken(callback:Callback):void {
+    if (callback == null) {
+      throw("callback in getIdToken is null...returning");
+    }
     CognitoUtil.getCurrentUser().getSession(function (err, session) {
-      if (err)
+      if (err) {
         console.log("Can't set the credentials:" + err);
+        callback.callbackWithParam(null);
+      }
       else {
         if (session.isValid()) {
-          if (callback != null) {
             callback.callbackWithParam(session.getIdToken().getJwtToken());
-          }
-          if (AwsUtil.firstLogin) {
-            AwsUtil.firstLogin = false;
-            DynamoDBService.writeLogEntry("login");
-          }
-
         } else {
           console.log("Got the id token, but the session isn't valid");
         }
@@ -94,15 +86,18 @@ export class CognitoUtil {
   }
 
   public static getRefreshToken(callback:Callback):void {
+    if (callback == null) {
+      throw("callback in getRefreshToken is null...returning");
+    }
     CognitoUtil.getCurrentUser().getSession(function (err, session) {
-      if (err)
+      if (err) {
         console.log("Can't set the credentials:" + err);
+        callback.callbackWithParam(null);
+      }
+
       else {
         if (session.isValid()) {
-          if (callback != null) {
             callback.callbackWithParam(session.getRefreshToken());
-          }
-
         }
       }
     });
@@ -198,10 +193,10 @@ export class UserLoginService {
       Pool: CognitoUtil.getUserPool()
     };
 
+    console.log("Authenticating the user");
     let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: function (result) {
-        AwsUtil.initAwsService(null);
         callback.cognitoCallback(null, result);
       },
       onFailure: function (err) {
@@ -256,7 +251,7 @@ export class UserLoginService {
   }
 
   static isAuthenticated(callback:LoggedInCallback) {
-    CognitoUtil.setupAwsCognito();
+    AwsUtil.initAwsService(null);
     let cognitoUser = CognitoUtil.getCurrentUser();
 
     if (cognitoUser != null) {
@@ -269,7 +264,6 @@ export class UserLoginService {
           console.log("Session is " + session.isValid());
           callback.isLoggedIn(err, session.isValid());
         }
-
       });
     } else {
       callback.isLoggedIn("Can't retrieve the CurrentUser", false);

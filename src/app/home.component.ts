@@ -8,6 +8,7 @@ import {
   ForgotPasswordStep1Component,
   ForgotPassword2Component
 } from "./auth.component";
+import {AwsUtil} from "./service/aws.service";
 
 declare let AWS:any;
 declare let AWSCognito:any;
@@ -48,6 +49,7 @@ export class HomeLandingComponent {
 ])
 export class HomeComponent implements OnInit {
   constructor(private router:Router) {
+    AwsUtil.initAwsService(null);
     console.log("HomeComponent constructor");
   }
 

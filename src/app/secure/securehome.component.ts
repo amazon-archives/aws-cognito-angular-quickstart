@@ -1,10 +1,11 @@
-import {Component, OnInit, Injectable} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
 import {Router, Routes, ROUTER_DIRECTIVES} from "@angular/router";
 import {LogoutComponent} from "./../auth.component";
 import {MyProfileComponent} from "./myprofile.component";
 import {JwtComponent} from "./jwt.component";
-import {LoggedInCallback, UserLoginService, CognitoUtil, Callback} from "../service/cognito.service";
+import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
 import {UseractivityComponent} from "./useractivity.component";
+import {AwsUtil} from "../service/aws.service";
 
 
 @Component({
@@ -23,13 +24,15 @@ import {UseractivityComponent} from "./useractivity.component";
 export class SecureHomeComponent implements OnInit, LoggedInCallback {
 
   constructor(public router:Router) {
-
+    AwsUtil.initAwsService(null);
+    UserLoginService.isAuthenticated(this);
     console.log("in SecureHomeComponent");
   }
 
   ngOnInit() {
 
   }
+
   isLoggedIn(message:string, isLoggedIn:boolean) {
     if (!isLoggedIn) {
       this.router.navigate(['/home/login']);

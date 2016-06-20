@@ -15,7 +15,7 @@ export class Stuff {
 })
 export class UseractivityComponent implements LoggedInCallback {
 
-  public logdata:Array<Stuff>= [];
+  public logdata:Array<Stuff> = [];
 
   constructor(public router:Router) {
     UserLoginService.isAuthenticated(this);

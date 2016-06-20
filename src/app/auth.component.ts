@@ -7,7 +7,7 @@ import {
   UserLoginService,
   LoggedInCallback
 } from "./service/cognito.service";
-import {DynamoDBService} from "./service/aws.service";
+import {AwsUtil} from "./service/aws.service";
 
 export class RegistrationUser {
   name:string;
@@ -51,6 +51,8 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback {
       this.errorMessage = message;
       console.log("result: " + this.errorMessage);
     } else { //success
+      // set the firstLogin value to true to indicate that a message needs to be saved to DDB
+      AwsUtil.firstLogin = true;
       this.router.navigate(['/securehome']);
     }
   }

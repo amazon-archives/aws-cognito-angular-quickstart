@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {CognitoUtil, UserLoginService, Callback, LoggedInCallback} from "./cognito.service";
+import {CognitoUtil, UserLoginService, Callback} from "./cognito.service";
 import {Stuff} from "../secure/useractivity.component";
 
 declare var AWS:any;
@@ -7,34 +7,52 @@ declare var AWSCognito:any;
 
 @Injectable()
 export class AwsUtil {
-  public static firstLogin:boolean = true;
+  public static firstLogin:boolean = false;
+  public static runningInit:boolean = false;
 
   /**
    * This is the method that needs to be called in order to init the aws global creds
    */
   static initAwsService(callback:Callback) {
     console.log("Setting up the region");
+    if (AwsUtil.runningInit) {
+      // Need to make sure I don't get into an infinite loop here, so need to exit if this method is running already
+      console.log("Running init...aborting all other attempts");
+      return;
+    } else {
+      AwsUtil.runningInit = true;
+    }
     AWS.config.region = CognitoUtil._REGION;
     AWSCognito.config.region = CognitoUtil._REGION;
 
-    AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials({
-      IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID
+    // First check if the user is authenticated already
+    UserLoginService.isAuthenticated({
+      isLoggedIn(message:string, loggedIn:boolean) {
+        // Include the passed-in callback here as well so that it's executed downstream
+        AwsUtil.setupAWS(loggedIn, callback);
+      }
     });
-
-    let loginCallback = new LoginCallback(callback);
-
-    UserLoginService.isAuthenticated(loginCallback);
   }
 
+
   /**
-   * Invoked by the 'initAwsService' method
+   * Sets up the AWS global params
+   *
+   * @param isLoggedIn
+   * @param callback
    */
-  static setupAWS(isLoggedIn:boolean):void {
+  static setupAWS(isLoggedIn:boolean, callback:Callback):void {
     console.log("in setupAWS()");
     if (isLoggedIn) {
       console.log("User is logged in");
-      CognitoUtil.getIdToken(new SetupAwsCallback());
-      console.log("Retrieving the access token");
+      CognitoUtil.getIdToken({
+        callback() {
+        },
+        callbackWithParam(idToken:any) {
+          AwsUtil.addCognitoCredentials(idToken);
+        }
+      });
+      console.log("Retrieving the id token");
 
     }
     else {
@@ -42,6 +60,14 @@ export class AwsUtil {
       AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials({
         IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID
       });
+
+
+    }
+    AwsUtil.runningInit = false;
+
+
+    if (callback != null) {
+      callback.callback();
     }
   }
 
@@ -49,8 +75,18 @@ export class AwsUtil {
     let params = AwsUtil.getCognitoParametersForIdConsolidation(idTokenJwt);
 
     AWS.config.credentials = new AWS.CognitoIdentityCredentials(params);
-    AwsUtil.getCognitoId(params);
-    // AwsUtil.retrieveCognitoIdentityAccessToken(null);
+    AWSCognito.config.credentials = new AWS.CognitoIdentityCredentials(params);
+
+    AWS.config.credentials.get(function(err) {
+      if (!err) {
+        // var id = AWS.config.credentials.identityId;
+        if (AwsUtil.firstLogin) {
+          // save the login info to DDB
+          DynamoDBService.writeLogEntry("login");
+          AwsUtil.firstLogin = false;
+        }
+      }
+    });
   }
 
   public static getCognitoParametersForIdConsolidation(idTokenJwt:string):{} {
@@ -66,19 +102,6 @@ export class AwsUtil {
     return params;
   }
 
-  public static retrieveCognitoIdentityAccessToken(callback:Callback) {
-    AWS.config.credentials.get(function (result) {
-      let keys:Array<string> = [];
-
-      // Credentials will be available when this function is called.
-      keys.push(AWS.config.credentials.accessKeyId);
-      keys.push(AWS.config.credentials.secretAccessKey);
-      keys.push(AWS.config.credentials.sessionToken);
-      if (callback != null)
-        callback.callbackWithParam(keys);
-    });
-  }
-
   public static getCognitoId(params:{}) {
 
     UserLoginService.isAuthenticated({
@@ -90,7 +113,7 @@ export class AwsUtil {
           };
 
           new AWS.CognitoIdentity().getId(params, function (err, data) {
-            if (err) console.log(err, err.stack); // an error occurred
+            if (err) console.log("Couldn't get the cognito id: " + err, err.stack); // an error occurred
             else     console.log("The unauthenticated cognito id:" + data['IdentityId']);           // successful response
           });
         } else {
@@ -115,33 +138,9 @@ export class AwsUtil {
         }
       }
     })
-
-  }
-
-}
-
-export class LoginCallback implements LoggedInCallback {
-
-  constructor(public callback:Callback) {
-
-  }
-  isLoggedIn(message:string, loggedIn:boolean):void {
-    if (this.callback != null) {
-      this.callback.callback();
-    }
-    AwsUtil.setupAWS(loggedIn);
   }
 }
 
-
-export class SetupAwsCallback implements Callback {
-  callback():void {
-  }
-
-  callbackWithParam(idToken:any):void {
-    AwsUtil.addCognitoCredentials(idToken);
-  }
-}
 @Injectable()
 export class DynamoDBService {
 
@@ -152,7 +151,7 @@ export class DynamoDBService {
       TableName: 'LoginTrail',
       KeyConditionExpression: "userId = :userId",
       ExpressionAttributeValues: {
-        ":userId":AWS.config.credentials.params.IdentityId
+        ":userId": AWS.config.credentials.params.IdentityId
       }
     };
     var docClient = new AWS.DynamoDB.DocumentClient();
@@ -163,13 +162,9 @@ export class DynamoDBService {
         console.error("Unable to query the table. Error JSON:", JSON.stringify(err, null, 2));
       } else {
         // print all the movies
-        console.log("Scan succeeded.");
+        console.log("Query succeeded.");
         data.Items.forEach(function (logitem) {
           mapArray.push({type: logitem.type, date: logitem.activityDate});
-          console.log(
-            logitem.userId + " : " +
-            logitem.type + ": ",
-            logitem.activityDate);
         });
       }
     }
@@ -196,11 +191,7 @@ export class DynamoDBService {
       }
     };
     DynamoDBService.DDB.putItem(itemParams, function (result) {
-      // Read the item from the table
-      // table.getItem({Key: {id: {S: key}}}, function (err, data) {
-      //   console.log(data.Item); // print the item data
-      // });
-      console.log(result);
+      console.log("putItem result: " + result);
     });
   }
 
