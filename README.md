@@ -44,3 +44,8 @@ ng build; cd dist; aws s3 sync . s3://budilov-cognito/
 # Test it out
 curl –I http://budilov-cognito.s3-website-us-east-1.amazonaws.com/
 ```
+
+# Necessary changes
+As is, the code has default configuration, pointing to the developer's region. You 
+will need to change the pool id, region, and dynamodb table id. You can find these
+configurations in ```aws.service.ts``` and ```cognito.service.ts```
