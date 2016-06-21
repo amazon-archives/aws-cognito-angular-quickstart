@@ -19,10 +19,8 @@ Cognito Quickstart
 
 # AWS Setup
 To create the AWS resources that are required for this app to run, 
-run the ```createResources.sh``` file included under the aws directory
-
-CAUTION: To remove the created resources, run the ```deleteResources.sh``` -- 
-IT'S GOING TO REMOVE ALL OF THE RESOURCES THAT WERE CREATED AFTER RUNNING THE ```createResources.sh```. 
+run the ```aws/createResources.sh``` file included under the aws directory. You might need to perform
+aws cognito-identity set-identity-pool-roles from the console. 
 
 # Getting the code
 ```

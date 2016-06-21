@@ -1,0 +1,9 @@
+{
+  "PasswordPolicy": {
+    "MinimumLength": 8,
+    "RequireUppercase": true,
+    "RequireLowercase": true,
+    "RequireNumbers": true,
+    "RequireSymbols": true
+  }
+}
