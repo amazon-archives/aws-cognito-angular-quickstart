@@ -1,3 +1,10 @@
+/**
+ * @author Vladimir Budilov
+ * 
+ * This is the entry-way into the routing logic. This is the first component that's called when the app
+ * loads. 
+ * 
+ */
 import {Component, OnInit} from "@angular/core";
 import {Routes, Router, ROUTER_DIRECTIVES} from "@angular/router";
 import {SecureHomeComponent} from "./securehome.component";

@@ -1,3 +1,10 @@
+/**
+ * @author Vladimir Budilov
+ *
+ * This file initializes the whole angular ecosystem. It's invoked by the SystemJS from the
+ * index.html file. 
+ *
+ */
 import {bootstrap} from "@angular/platform-browser-dynamic";
 import {enableProdMode} from "@angular/core";
 import {ROUTER_PROVIDERS} from "@angular/router";
@@ -9,5 +16,4 @@ if (environment.production) {
   enableProdMode();
 }
 
-var myApp = bootstrap(AppComponent, [ROUTER_PROVIDERS, CognitoUtil]);
-
+bootstrap(AppComponent, [ROUTER_PROVIDERS, CognitoUtil]);
