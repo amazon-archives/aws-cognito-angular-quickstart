@@ -18,9 +18,12 @@ Cognito Quickstart
 * [Bootstrap](http://getbootstrap.com/)
 
 # AWS Setup
-To create the AWS resources that are required for this app to run, 
-run the ```aws/createResources.sh``` file included under the aws directory. You might need to perform
-aws cognito-identity set-identity-pool-roles from the console. 
+To create some of the AWS resources that are required for this app to run, 
+run the ```aws/createResources.sh``` file included under the aws directory. 
+
+You will need to create the user pool manually through the console. Afterwards, you'll need to update the identity
+pool with the relevant user pool information under Authentication Providers. Also, you'll need to assign the correct
+roles to the identity pool. 
 
 # Getting the code
 ```
