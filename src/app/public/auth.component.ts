@@ -1,5 +1,5 @@
-import {Component, OnInit} from "@angular/core";
-import {ROUTER_DIRECTIVES, Router, RouteSegment} from "@angular/router";
+import {Component, OnInit, OnDestroy} from "@angular/core";
+import {ROUTER_DIRECTIVES, Router, ActivatedRoute} from "@angular/router";
 import {
   CognitoUtil,
   UserRegistrationService,
@@ -7,7 +7,6 @@ import {
   UserLoginService,
   LoggedInCallback
 } from "../service/cognito.service";
-import {AwsUtil} from "../service/aws.service";
 
 export class RegistrationUser {
   name:string;
@@ -51,8 +50,6 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit
       this.errorMessage = message;
       console.log("result: " + this.errorMessage);
     } else { //success
-      // set the firstLogin value to true to indicate that a message needs to be saved to DDB
-      AwsUtil.firstLogin = true;
       this.router.navigate(['/securehome']);
     }
   }
@@ -89,18 +86,26 @@ export class LogoutComponent implements LoggedInCallback {
   directives: [ROUTER_DIRECTIVES],
   templateUrl: '/app/template/auth/confirmRegistration.html'
 })
-export class RegistrationConfirmationComponent {
+export class RegistrationConfirmationComponent implements OnInit, OnDestroy {
   confirmationCode:string;
   email:string;
   errorMessage:string;
+  private sub:any;
 
-  constructor(public configs:CognitoUtil, public regService:UserRegistrationService, public router:Router, public params:RouteSegment) {
-    this.onInit();
+  constructor(public configs:CognitoUtil, public regService:UserRegistrationService, public router:Router, public route:ActivatedRoute) {
   }
 
-  onInit() {
+  ngOnInit() {
+    this.sub = this.route.params.subscribe(params => {
+      this.email = params['email'];
+
+    });
+
     this.errorMessage = null;
-    this.email = this.params.getParam('username');
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
 
   onConfirmRegistration() {
@@ -181,23 +186,28 @@ export class ForgotPasswordStep1Component implements CognitoCallback {
   directives: [ROUTER_DIRECTIVES],
   templateUrl: '/app/template/auth/forgotPasswordStep2.html'
 })
-export class ForgotPassword2Component implements CognitoCallback {
+export class ForgotPassword2Component implements CognitoCallback, OnInit, OnDestroy {
 
   verificationCode:string;
   email:string;
   password:string;
   errorMessage:string;
+  private sub:any;
 
-
-  constructor(public router:Router, public params:RouteSegment) {
-    this.onInit();
-
-    this.email = this.params.getParam('email');
+  constructor(public router:Router, public route:ActivatedRoute) {
     console.log("email from the url: " + this.email);
   }
 
-  onInit() {
+  ngOnInit() {
+    this.sub = this.route.params.subscribe(params => {
+      this.email = params['email'];
+
+    });
     this.errorMessage = null;
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
 
   onNext() {

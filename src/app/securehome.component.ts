@@ -1,11 +1,6 @@
 import {Component, OnInit} from "@angular/core";
-import {Router, Routes, ROUTER_DIRECTIVES} from "@angular/router";
-import {LogoutComponent} from "./public/auth.component";
-import {MyProfileComponent} from "./secure/myprofile.component";
-import {JwtComponent} from "./secure/jwt.component";
+import {Router, ROUTER_DIRECTIVES} from "@angular/router";
 import {LoggedInCallback, UserLoginService} from "./service/cognito.service";
-import {UseractivityComponent} from "./secure/useractivity.component";
-import {AwsUtil} from "./service/aws.service";
 
 
 @Component({
@@ -14,13 +9,6 @@ import {AwsUtil} from "./service/aws.service";
   directives: [ROUTER_DIRECTIVES],
   styleUrls: ['/css/sb-admin.css']
 })
-@Routes([
-  {path: '/', component: MyProfileComponent},
-  {path: '/logout', component: LogoutComponent},
-  {path: '/jwttokens', component: JwtComponent},
-  {path: '/myprofile', component: MyProfileComponent},
-  {path: '/useractivity', component: UseractivityComponent}
-])
 export class SecureHomeComponent implements OnInit, LoggedInCallback {
 
   constructor(public router:Router) {

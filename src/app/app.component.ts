@@ -6,10 +6,8 @@
  * 
  */
 import {Component, OnInit} from "@angular/core";
-import {Routes, Router, ROUTER_DIRECTIVES} from "@angular/router";
-import {SecureHomeComponent} from "./securehome.component";
+import {ROUTER_DIRECTIVES} from "@angular/router";
 import {UserRegistrationService, UserLoginService, UserParametersService} from "./service/cognito.service";
-import {HomeComponent} from "./home.component";
 import {AwsUtil} from "./service/aws.service";
 
 @Component({
@@ -18,20 +16,9 @@ import {AwsUtil} from "./service/aws.service";
   providers: [UserRegistrationService, UserLoginService, UserParametersService],
   directives: [ROUTER_DIRECTIVES]
 })
-@Routes([
-  {path: '/', component: HomeComponent},
-  {path: '/home', component: HomeComponent},
-  {path: '/securehome', component: SecureHomeComponent}
-])
 export class AppComponent implements OnInit {
 
-  /**
-   * You have to include router here, even though you're not explicitly using it
-   *
-   * @param router
-   * @param configs
-   */
-  constructor(private router:Router) {
+  constructor() {
     console.log("AppComponent constructor");
   }
 
