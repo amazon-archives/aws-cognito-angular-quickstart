@@ -31,7 +31,7 @@ const HomeRoutes:RouterConfig = [
       {path: 'register', component: RegisterComponent},
       {path: 'confirmRegistration/:username', component: RegistrationConfirmationComponent},
       {path: 'resendCode', component: ResendCodeComponent},
-      {path: 'forgotPassword2/:email', component: ForgotPassword2Component},
+      {path: 'forgotPassword/:email', component: ForgotPassword2Component},
       {path: 'forgotPassword', component: ForgotPasswordStep1Component},
       {path: '', component: HomeLandingComponent}
     ]
