@@ -4,6 +4,7 @@ import {Stuff} from "../secure/useractivity.component";
 
 declare var AWS:any;
 declare var AWSCognito:any;
+declare var AMA:any;
 
 @Injectable()
 export class AwsUtil {
@@ -52,6 +53,15 @@ export class AwsUtil {
     console.log("in setupAWS()");
     if (isLoggedIn) {
       console.log("User is logged in");
+      // Setup mobile analytics
+      var options = {
+        appId : '32673c035a0b40e99d6e1f327be0cb60',
+        appTitle : "aws-cognito-angular2-quickstart"
+      };
+
+      var mobileAnalyticsClient = new AMA.Manager(options);
+      mobileAnalyticsClient.submitEvents();
+
       CognitoUtil.getIdToken({
         callback() {
         },
