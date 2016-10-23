@@ -1,5 +1,5 @@
 import {Injectable, Inject} from "@angular/core";
-import {RegistrationUser} from "../public/auth.component.ts";
+import {RegistrationUser} from "../public/auth/auth.component";
 import {AwsUtil, DynamoDBService} from "./aws.service";
 
 declare let AWS:any;

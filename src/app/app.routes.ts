@@ -1,5 +1,6 @@
-import {provideRouter, RouterConfig} from "@angular/router";
-import {HomeLandingComponent, AboutComponent, HomeComponent} from "./home.component";
+import { Routes, RouterModule } from '@angular/router';
+import { ModuleWithProviders } from '@angular/core';
+import {HomeLandingComponent, AboutComponent, HomeComponent} from "./public/home.component";
 import {
   LoginComponent,
   RegisterComponent,
@@ -8,16 +9,15 @@ import {
   ForgotPassword2Component,
   ForgotPasswordStep1Component,
   LogoutComponent
-} from "./public/auth.component";
-import {SecureHomeComponent} from "./securehome.component";
+} from "./public/auth/auth.component";
+import {SecureHomeComponent} from "./secure/securehome.component";
 import {MyProfileComponent} from "./secure/myprofile.component";
 import {JwtComponent} from "./secure/jwt.component";
 import {UseractivityComponent} from "./secure/useractivity.component";
 import {AppComponent} from "./app.component";
 
-const HomeRoutes:RouterConfig = [
+const homeRoutes:Routes = [
   {
-
     path: '',
     redirectTo: '/home',
     pathMatch: 'full'
@@ -38,7 +38,7 @@ const HomeRoutes:RouterConfig = [
   },
 ];
 
-const SecureHomeRoutes:RouterConfig = [
+const secureHomeRoutes:Routes = [
   {
 
     path: '',
@@ -55,13 +55,13 @@ const SecureHomeRoutes:RouterConfig = [
   }
 ];
 
-const routes:RouterConfig = [
+const routes:Routes = [
   {
     path: '',
     component: AppComponent,
     children: [
-      ...HomeRoutes,
-      ...SecureHomeRoutes,
+      ...homeRoutes,
+      ...secureHomeRoutes,
       {
         path: '',
         component: HomeComponent
@@ -72,6 +72,8 @@ const routes:RouterConfig = [
 
 ];
 
-export const APP_ROUTER_PROVIDERS = [
-  provideRouter(routes)
+export const appRoutingProviders: any[] = [
+
 ];
+
+export const routing: ModuleWithProviders = RouterModule.forRoot(routes);

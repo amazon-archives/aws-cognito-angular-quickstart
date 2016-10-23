@@ -11,7 +11,7 @@ export class Stuff {
 
 @Component({
   selector: 'awscognito-angular2-app',
-  templateUrl: '/app/template/secure/useractivity.html'
+  templateUrl: './useractivity.html'
 })
 export class UseractivityComponent implements LoggedInCallback {
 

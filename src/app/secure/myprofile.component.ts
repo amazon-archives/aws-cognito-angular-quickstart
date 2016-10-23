@@ -5,7 +5,7 @@ import {Router} from "@angular/router";
 
 @Component({
   selector: 'awscognito-angular2-app',
-  templateUrl: '/app/template/secure/myprofile.html'
+  templateUrl: './myprofile.html'
 })
 export class MyProfileComponent implements LoggedInCallback {
 

@@ -98,7 +98,7 @@ export class AwsUtil {
   public static getCognitoParametersForIdConsolidation(idTokenJwt:string):{} {
     console.log("enter getCognitoParametersForIdConsolidation()");
     let url = 'cognito-idp.' + CognitoUtil._REGION.toLowerCase() + '.amazonaws.com/' + CognitoUtil._USER_POOL_ID;
-    let logins:Array<string,string> = [];
+    let logins:Array<string> = [];
     logins[url] = idTokenJwt;
     let params = {
       IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID, /* required */

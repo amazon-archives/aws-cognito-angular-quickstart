@@ -31,9 +31,10 @@ roles to the identity pool.
 git clone --depth 1 git@github.com:awslabs/aws-cognito-angular2-quickstart.git
 ```
 ```
-# Install the NPM and Bower packages
+# Install the NPM & Bower packages, and typings
 npm install
 bower install
+typings install
 ```
 ```
 # Run the app in dev mode
@@ -52,3 +53,5 @@ curl –I http://budilov-cognito.s3-website-us-east-1.amazonaws.com/
 As is, the code has default configuration, pointing to the developer's region. You 
 will need to change the pool id, region, and dynamodb table id. You can find these
 configurations in ```aws.service.ts``` and ```cognito.service.ts```
+
+You will also need to change the account id in authrole.json
