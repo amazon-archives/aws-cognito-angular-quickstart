@@ -8,7 +8,6 @@ Cognito Quickstart
 ## Required Tools
 * [aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html)
 * [npm](https://www.npmjs.com/)
-* [bower](https://bower.io/)
 * [angular-cli](https://github.com/angular/angular-cli)
 
 ## Frameworks
@@ -33,8 +32,6 @@ git clone --depth 1 git@github.com:awslabs/aws-cognito-angular2-quickstart.git
 ```
 # Install the NPM & Bower packages, and typings
 npm install
-bower install
-typings install
 ```
 ```
 # Run the app in dev mode
