@@ -7,6 +7,7 @@ import {
   UserLoginService,
   LoggedInCallback
 } from "../../service/cognito.service";
+import {DynamoDBService} from "../../service/aws.service";
 
 export class RegistrationUser {
   name:string;
@@ -48,6 +49,7 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit
       this.errorMessage = message;
       console.log("result: " + this.errorMessage);
     } else { //success
+      DynamoDBService.writeLogEntry("login");
       this.router.navigate(['/securehome']);
     }
   }
