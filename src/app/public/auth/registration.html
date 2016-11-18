@@ -1,31 +1,32 @@
 <form class="form-signin" method="POST" action="#" role="form">
-  <div class="form-group">
-    <h2>Create account</h2>
-  </div>
-  <div *ngIf="errorMessage!=null" class="alert alert-danger">
-    {{errorMessage}}
-  </div>
-  <div class="form-group">
-    <label class="control-label" for="signupName">Name</label>
-    <input id="signupName" type="text" maxlength="50" class="form-control"
-           [(ngModel)]="registrationUser.name" [ngModelOptions]="{standalone: true}">
-  </div>
-  <div class="form-group">
-    <label class="control-label" for="signupEmail">Email</label>
-    <input id="signupEmail" type="email" maxlength="50" class="form-control"
-           [(ngModel)]="registrationUser.email" [ngModelOptions]="{standalone: true}">
-  </div>
-  <div class="form-group">
-    <label class="control-label" for="signupPassword">Password</label>
-    <input id="signupPassword" type="password" maxlength="25" class="form-control"
-           placeholder="at least 8 characters" length="40" [(ngModel)]="registrationUser.password" [ngModelOptions]="{standalone: true}">
-  </div>
-  <div class="form-group">
-    <button (click)="onRegister($event)" id="signupSubmit" type="submit" class="btn btn-info btn-block">
-      Create your account
-    </button>
-  </div>
-  <hr>
-  <p>Already have an account? <a [routerLink]="['/home/login']"> <i class="fa fa-fw fa-lock"></i>Login</a></p>
+    <div class="form-group">
+        <h2>Create account</h2>
+    </div>
+    <div *ngIf="errorMessage!=null" class="alert alert-danger">
+        {{ errorMessage }}
+    </div>
+    <div class="form-group">
+        <label class="control-label" for="signupName">Name</label>
+        <input id="signupName" type="text" maxlength="50" class="form-control"
+               [(ngModel)]="registrationUser.name" [ngModelOptions]="{standalone: true}">
+    </div>
+    <div class="form-group">
+        <label class="control-label" for="signupEmail">Email</label>
+        <input id="signupEmail" type="email" maxlength="50" class="form-control"
+               [(ngModel)]="registrationUser.email" [ngModelOptions]="{standalone: true}">
+    </div>
+    <div class="form-group">
+        <label class="control-label" for="signupPassword">Password</label>
+        <input id="signupPassword" type="password" maxlength="25" class="form-control"
+               placeholder="at least 8 characters" length="40" [(ngModel)]="registrationUser.password"
+               [ngModelOptions]="{standalone: true}">
+    </div>
+    <div class="form-group">
+        <button (click)="onRegister($event)" id="signupSubmit" type="submit" class="btn btn-info btn-block">
+            Create your account
+        </button>
+    </div>
+    <hr>
+    <p>Already have an account? <a [routerLink]="['/home/login']"> <i class="fa fa-fw fa-lock"></i>Login</a></p>
 </form>
 

@@ -4,58 +4,58 @@ import {Router} from "@angular/router";
 
 
 export class Stuff {
-  public accessToken:string;
-  public idToken:string;
+    public accessToken:string;
+    public idToken:string;
 }
 
 @Component({
-  selector: 'awscognito-angular2-app',
-  templateUrl: './jwt.html'
+    selector: 'awscognito-angular2-app',
+    templateUrl: './jwt.html'
 })
 export class JwtComponent implements LoggedInCallback {
 
-  public stuff:Stuff = new Stuff();
+    public stuff:Stuff = new Stuff();
 
-  constructor(public router:Router) {
-    UserLoginService.isAuthenticated(this);
-    console.log("in JwtComponent");
+    constructor(public router:Router, public userService:UserLoginService, public cognitoUtil:CognitoUtil) {
+        this.userService.isAuthenticated(this);
+        console.log("in JwtComponent");
 
-  }
-
-  isLoggedIn(message:string, isLoggedIn:boolean) {
-    if (!isLoggedIn) {
-      this.router.navigate(['/home/login']);
-    } else {
-      CognitoUtil.getAccessToken(new AccessTokenCallback(this));
-      CognitoUtil.getIdToken(new IdTokenCallback(this));
     }
-  }
+
+    isLoggedIn(message:string, isLoggedIn:boolean) {
+        if (!isLoggedIn) {
+            this.router.navigate(['/home/login']);
+        } else {
+            this.cognitoUtil.getAccessToken(new AccessTokenCallback(this));
+            this.cognitoUtil.getIdToken(new IdTokenCallback(this));
+        }
+    }
 }
 
 export class AccessTokenCallback implements Callback {
-  constructor(public jwt:JwtComponent) {
+    constructor(public jwt:JwtComponent) {
 
-  }
+    }
 
-  callback() {
+    callback() {
 
-  }
+    }
 
-  callbackWithParam(result) {
-    this.jwt.stuff.accessToken = result;
-  }
+    callbackWithParam(result) {
+        this.jwt.stuff.accessToken = result;
+    }
 }
 
 export class IdTokenCallback implements Callback {
-  constructor(public jwt:JwtComponent) {
+    constructor(public jwt:JwtComponent) {
 
-  }
+    }
 
-  callback() {
+    callback() {
 
-  }
+    }
 
-  callbackWithParam(result) {
-    this.jwt.stuff.idToken = result;
-  }
+    callbackWithParam(result) {
+        this.jwt.stuff.idToken = result;
+    }
 }

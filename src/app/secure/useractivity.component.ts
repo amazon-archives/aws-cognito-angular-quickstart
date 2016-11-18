@@ -1,34 +1,34 @@
 import {Component} from "@angular/core";
 import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
 import {Router} from "@angular/router";
-import {DynamoDBService} from "../service/aws.service";
+import {DynamoDBService} from "../service/ddb.service";
 
 
 export class Stuff {
-  public type:string;
-  public date:string;
+    public type:string;
+    public date:string;
 }
 
 @Component({
-  selector: 'awscognito-angular2-app',
-  templateUrl: './useractivity.html'
+    selector: 'awscognito-angular2-app',
+    templateUrl: './useractivity.html'
 })
 export class UseractivityComponent implements LoggedInCallback {
 
-  public logdata:Array<Stuff> = [];
+    public logdata:Array<Stuff> = [];
 
-  constructor(public router:Router) {
-    UserLoginService.isAuthenticated(this);
-    console.log("in UseractivityComponent");
-  }
-
-  isLoggedIn(message:string, isLoggedIn:boolean) {
-    if (!isLoggedIn) {
-      this.router.navigate(['/home/login']);
-    } else {
-      console.log("scanning DDB");
-      DynamoDBService.getLogEntries(this.logdata);
+    constructor(public router:Router, public ddb:DynamoDBService, public userService:UserLoginService) {
+        this.userService.isAuthenticated(this);
+        console.log("in UseractivityComponent");
     }
-  }
+
+    isLoggedIn(message:string, isLoggedIn:boolean) {
+        if (!isLoggedIn) {
+            this.router.navigate(['/home/login']);
+        } else {
+            console.log("scanning DDB");
+            this.ddb.getLogEntries(this.logdata);
+        }
+    }
 
 }
