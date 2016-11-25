@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 ROOT_NAME=DevDay2
+# Bucket name must be all lowercase, and start/end with lowecase letter or number
 BUCKET_NAME=budilov-${ROOT_NAME,,}
 TABLE_NAME=LoginTrail$ROOT_NAME
 ROLE_NAME_PREFIX=$ROOT_NAME
