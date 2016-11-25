@@ -4,6 +4,8 @@ ROOT_NAME=DevDay2
 # Bucket name must be all lowercase, and start/end with lowecase letter or number
 BUCKET_NAME=budilov-${ROOT_NAME,,}
 TABLE_NAME=LoginTrail$ROOT_NAME
+# Replace with your 12-digit AWS account ID (e.g., 123456789012)
+AWS_ACCOUNT=account-id
 ROLE_NAME_PREFIX=$ROOT_NAME
 POOL_NAME=$ROOT_NAME
 IDENTITY_POOL_NAME=$ROOT_NAME
@@ -44,21 +46,21 @@ cat authrole.json | sed 's/TABLE_NAME/'$TABLE_NAME'/' > /tmp/authrole.json
 aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-name CognitoPolicy --policy-document file:///tmp/authrole.json
 
 # Create the user pool
-#aws cognito-idp create-user-pool --pool-name $POOL_NAME --auto-verified-attributes email --policies file://user-pool-policy.json --region $REGION > /tmp/$POOL_NAME-create-user-pool
-#userPoolId=$(grep -Po '"Id":.*?[^\\]",' /tmp/$POOL_NAME-create-user-pool | awk -F'"' '{print $4}')
-#echo "Created user pool with an id of " $userPoolId
+aws cognito-idp create-user-pool --pool-name $POOL_NAME --auto-verified-attributes email --policies file://user-pool-policy.json --region $REGION > /tmp/$POOL_NAME-create-user-pool
+userPoolId=$(grep -Po '"Id":.*?[^\\]".*' /tmp/$POOL_NAME-create-user-pool | awk -F'"' '{print $4}')
+echo "Created user pool with an id of " $userPoolId
 
 # Create the user pool client
-#aws cognito-idp create-user-pool-client --user-pool-id $userPoolId --no-generate-secret --client-name webapp --region $REGION > /tmp/$POOL_NAME-create-user-pool-client
-#userPoolClientId=$(grep -Po '"ClientId":.*?[^\\]",' /tmp/$POOL_NAME-create-user-pool-client | awk -F'"' '{print $4}')
-#echo "Created user pool client with id of " $userPoolClientId
+aws cognito-idp create-user-pool-client --user-pool-id $userPoolId --no-generate-secret --client-name webapp --region $REGION > /tmp/$POOL_NAME-create-user-pool-client
+userPoolClientId=$(grep -Po '"ClientId":.*?[^\\]".*' /tmp/$POOL_NAME-create-user-pool-client | awk -F'"' '{print $4}')
+echo "Created user pool client with id of " $userPoolClientId
 
 # Add the user pool and user pool client id to the identity pool
-#aws cognito-identity update-identity-pool --allow-unauthenticated-identities --identity-pool-id $identityPoolId --identity-pool-name $IDENTITY_POOL_NAME --cognito-identity-providers ProviderName=cognito-idp.$REGION.amazonaws.com/$userPoolId,ClientId=$userPoolClientId --region $REGION
+aws cognito-identity update-identity-pool --allow-unauthenticated-identities --identity-pool-id $identityPoolId --identity-pool-name $IDENTITY_POOL_NAME --cognito-identity-providers ProviderName=cognito-idp.$REGION.amazonaws.com/$userPoolId,ClientId=$userPoolClientId --region $REGION
 
 # Update cognito identity with the roles
 # If this command gives you an error, associate the roles manually
-#aws cognito-identity set-identity-pool-roles --identity-pool-id $identityPoolId --roles authenticated=arn:aws:iam:::role/$ROLE_NAME_PREFIX-authenticated-role,unauthenticated=arn:aws:iam:::role/$ROLE_NAME_PREFIX-unauthenticated-role --region $REGION
+aws cognito-identity set-identity-pool-roles --identity-pool-id $identityPoolId --roles authenticated=arn:aws:iam::$AWS_ACCOUNT:role/$ROLE_NAME_PREFIX-authenticated-role,unauthenticated=arn:aws:iam::$AWS_ACCOUNT:role/$ROLE_NAME_PREFIX-unauthenticated-role --region $REGION
 
 sleep 3
 echo "Region: " $REGION
