@@ -2,7 +2,8 @@
 
 ROOT_NAME=DevDay2
 # Bucket name must be all lowercase, and start/end with lowecase letter or number
-BUCKET_NAME=budilov-${ROOT_NAME,,}
+# $(echo...) code to work with versions of bash older than 4.0
+BUCKET_NAME=budilov-$(echo "$ROOT_NAME" | tr '[:upper:]' '[:lower:]')
 TABLE_NAME=LoginTrail$ROOT_NAME
 # Replace with your 12-digit AWS account ID (e.g., 123456789012)
 AWS_ACCOUNT=account-id
