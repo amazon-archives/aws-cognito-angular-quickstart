@@ -48,12 +48,12 @@ aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --polic
 
 # Create the user pool
 aws cognito-idp create-user-pool --pool-name $POOL_NAME --auto-verified-attributes email --policies file://user-pool-policy.json --region $REGION > /tmp/$POOL_NAME-create-user-pool
-userPoolId=$(grep -Po '"Id":.*?[^\\]".*' /tmp/$POOL_NAME-create-user-pool | awk -F'"' '{print $4}')
+userPoolId=$(grep -E '"Id":' /tmp/$POOL_NAME-create-user-pool | awk -F'"' '{print $4}')
 echo "Created user pool with an id of " $userPoolId
 
 # Create the user pool client
 aws cognito-idp create-user-pool-client --user-pool-id $userPoolId --no-generate-secret --client-name webapp --region $REGION > /tmp/$POOL_NAME-create-user-pool-client
-userPoolClientId=$(grep -Po '"ClientId":.*?[^\\]".*' /tmp/$POOL_NAME-create-user-pool-client | awk -F'"' '{print $4}')
+userPoolClientId=$(grep -E '"ClientId":' /tmp/$POOL_NAME-create-user-pool-client | awk -F'"' '{print $4}')
 echo "Created user pool client with id of " $userPoolClientId
 
 # Add the user pool and user pool client id to the identity pool
