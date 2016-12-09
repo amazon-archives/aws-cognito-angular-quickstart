@@ -47,7 +47,7 @@ cat authrole.json | sed 's/TABLE_NAME/'$TABLE_NAME'/' > /tmp/authrole.json
 aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-name CognitoPolicy --policy-document file:///tmp/authrole.json
 
 # Create the user pool
-aws cognito-idp create-user-pool --pool-name $POOL_NAME --auto-verified-attributes email --policies file://user-pool-policy.json --region $REGION > /tmp/$POOL_NAME-create-user-pool
+aws cognito-idp create-user-pool --pool-name $POOL_NAME --auto-verified-attributes email --schema Name=email,Required=true --policies file://user-pool-policy.json --region $REGION > /tmp/$POOL_NAME-create-user-pool
 userPoolId=$(grep -E '"Id":' /tmp/$POOL_NAME-create-user-pool | awk -F'"' '{print $4}')
 echo "Created user pool with an id of " $userPoolId
 
