@@ -12,17 +12,23 @@ Cognito Quickstart
 
 ## Frameworks
 * [AWS JavaScript SDK](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/browser-intro.html)
-* [Angular 2](https://angular.io/docs/ts/latest/quickstart.html) [(Ionic)](http://ionicframework.com/docs/v2/getting-started/installation/)
-* [TypeScript](https://www.typescriptlang.org/docs/tutorial.html)
+* [AWS Rekognition](http://docs.aws.amazon.com/Rekognition)
+* [Angular 2](https://angular.io/docs/ts/latest/quickstart.html)
+    * [TypeScript](https://www.typescriptlang.org/docs/tutorial.html)
 * [Bootstrap](http://getbootstrap.com/)
 
 # AWS Setup
-To create some of the AWS resources that are required for this app to run, 
-run the ```aws/createResources.sh``` file included under the aws directory. 
+##### Install the required tools
+* Create an AWS account
+* Install [npm](https://www.npmjs.com/)
+* Run ```npm install``` at the project's root level
+* [Install or update your aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) 
+* [Install angular-cli](https://github.com/angular/angular-cli)
 
-You will need to create the user pool manually through the console. Afterwards, you'll need to update the identity
-pool with the relevant user pool information under Authentication Providers. Also, you'll need to assign the correct
-roles to the identity pool. 
+##### This will install the AWS resources
+* ```cd aws``` 
+* ```./createResources.sh```
+
 
 # Getting the code
 ```
@@ -30,7 +36,7 @@ roles to the identity pool.
 git clone --depth 1 git@github.com:awslabs/aws-cognito-angular2-quickstart.git
 ```
 ```
-# Install the NPM & Bower packages, and typings
+# Install the NPM packages
 npm install
 ```
 ```
@@ -51,4 +57,3 @@ As is, the code has default configuration, pointing to the developer's region. Y
 will need to change the pool id, region, and dynamodb table id. You can find these
 configurations in ```aws.service.ts``` and ```cognito.service.ts```
 
-You will also need to change the account id in authrole.json
