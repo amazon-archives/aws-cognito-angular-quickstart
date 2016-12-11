@@ -1,23 +1,27 @@
 #!/usr/bin/env bash
 
-ROOT_NAME=DevDay2
+ROOT_NAME=budilovdelete
 # Bucket name must be all lowercase, and start/end with lowecase letter or number
 # $(echo...) code to work with versions of bash older than 4.0
 BUCKET_NAME=budilov-$(echo "$ROOT_NAME" | tr '[:upper:]' '[:lower:]')
 TABLE_NAME=LoginTrail$ROOT_NAME
+
 # Replace with your 12-digit AWS account ID (e.g., 123456789012)
-AWS_ACCOUNT=account-id
+AWS_ACCOUNT=540403165297
 ROLE_NAME_PREFIX=$ROOT_NAME
 POOL_NAME=$ROOT_NAME
 IDENTITY_POOL_NAME=$ROOT_NAME
-REGION=us-east-1
+REGION=us-west-2
 
 # Create the bucket
 aws s3 mb s3://$BUCKET_NAME/ --region $REGION
 # Add the ‘website’ configuration and bucket policy
 aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html
-cat s3-bucket-policy.json | sed 's/REPLACE_ME/'$BUCKET_NAME'/' > /tmp/s3-bucket-policy.json
+cat s3-bucket-policy.json | sed 's/BUCKET_NAME/'$BUCKET_NAME'/' > /tmp/s3-bucket-policy.json
 aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/s3-bucket-policy.json
+#Build the project and sync it up to the bucket
+ng build --prod ../
+aws s3 sync ../dist/ s3://$BUCKET_NAME/
 
 # Create DDB Table
 aws dynamodb create-table \
@@ -43,7 +47,7 @@ aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --pol
 # Create an IAM role for authenticated users
 cat authrole-trust-policy.json | sed 's/IDENTITY_POOL/'$identityPoolId'/' > /tmp/authrole-trust-policy.json
 aws iam create-role --role-name $ROLE_NAME_PREFIX-authenticated-role --assume-role-policy-document file:///tmp/authrole-trust-policy.json
-cat authrole.json | sed 's/TABLE_NAME/'$TABLE_NAME'/' > /tmp/authrole.json
+cat authrole.json | sed 's/TABLE_NAME/'$TABLE_NAME'/' | sed 's/ACCOUNT_NUMBER/'$AWS_ACCOUNT'/' > /tmp/authrole.json
 aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-name CognitoPolicy --policy-document file:///tmp/authrole.json
 
 # Create the user pool
@@ -66,5 +70,6 @@ aws cognito-identity set-identity-pool-roles --identity-pool-id $identityPoolId 
 sleep 3
 echo "Region: " $REGION
 echo "DynamoDB: " $TABLE_NAME
+echo "Bucket name: " + $BUCKET_NAME
 echo "Identity Pool name: " $IDENTITY_POOL_NAME
 echo "Identity Pool id: " $identityPoolId
