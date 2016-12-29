@@ -1,22 +1,21 @@
 import {Injectable, Inject} from "@angular/core";
-import {RegistrationUser} from "../public/auth/auth.component";
 import {DynamoDBService} from "./ddb.service";
-import {AwsUtil} from "./aws.service";
+import {RegistrationUser} from "../public/auth/register/registration.component";
 
-declare var AWSCognito:any;
-declare var AWS:any;
+declare var AWSCognito: any;
+declare var AWS: any;
 
 export interface CognitoCallback {
-    cognitoCallback(message:string, result:any):void;
+    cognitoCallback(message: string, result: any): void;
 }
 
 export interface LoggedInCallback {
-    isLoggedIn(message:string, loggedIn:boolean):void;
+    isLoggedIn(message: string, loggedIn: boolean): void;
 }
 
 export interface Callback {
-    callback():void;
-    callbackWithParam(result:any):void;
+    callback(): void;
+    callbackWithParam(result: any): void;
 }
 
 @Injectable()
@@ -34,7 +33,7 @@ export class CognitoUtil {
     };
 
 
-    public static getAwsCognito():any {
+    public static getAwsCognito(): any {
         return AWSCognito
     }
 
@@ -47,11 +46,11 @@ export class CognitoUtil {
     }
 
 
-    getCognitoIdentity():string {
+    getCognitoIdentity(): string {
         return AWS.config.credentials.identityId;
     }
 
-    getAccessToken(callback:Callback):void {
+    getAccessToken(callback: Callback): void {
         if (callback == null) {
             throw("CognitoUtil: callback in getAccessToken is null...returning");
         }
@@ -72,7 +71,7 @@ export class CognitoUtil {
             callback.callbackWithParam(null);
     }
 
-    getIdToken(callback:Callback):void {
+    getIdToken(callback: Callback): void {
         if (callback == null) {
             throw("CognitoUtil: callback in getIdToken is null...returning");
         }
@@ -94,7 +93,7 @@ export class CognitoUtil {
             callback.callbackWithParam(null);
     }
 
-    getRefreshToken(callback:Callback):void {
+    getRefreshToken(callback: Callback): void {
         if (callback == null) {
             throw("CognitoUtil: callback in getRefreshToken is null...returning");
         }
@@ -115,7 +114,7 @@ export class CognitoUtil {
             callback.callbackWithParam(null);
     }
 
-    refresh():void {
+    refresh(): void {
         this.getCurrentUser().getSession(function (err, session) {
             if (err) {
                 console.log("CognitoUtil: Can't set the credentials:" + err);
@@ -123,9 +122,9 @@ export class CognitoUtil {
 
             else {
                 if (session.isValid()) {
-                    console.log("CognitoUtil: refresshed successfully");
+                    console.log("CognitoUtil: refreshed successfully");
                 } else {
-                    console.log("CognitoUtil: refresshed but session is still not valid");
+                    console.log("CognitoUtil: refreshed but session is still not valid");
                 }
             }
         });
@@ -135,11 +134,11 @@ export class CognitoUtil {
 @Injectable()
 export class UserRegistrationService {
 
-    constructor(@Inject(CognitoUtil) public cognitoUtil:CognitoUtil) {
+    constructor(@Inject(CognitoUtil) public cognitoUtil: CognitoUtil) {
 
     }
 
-    register(user:RegistrationUser, callback:CognitoCallback):void {
+    register(user: RegistrationUser, callback: CognitoCallback): void {
         console.log("UserRegistrationService: user is " + user);
 
         let attributeList = [];
@@ -166,7 +165,7 @@ export class UserRegistrationService {
 
     }
 
-    confirmRegistration(username:string, confirmationCode:string, callback:CognitoCallback):void {
+    confirmRegistration(username: string, confirmationCode: string, callback: CognitoCallback): void {
 
         let userData = {
             Username: username,
@@ -184,7 +183,7 @@ export class UserRegistrationService {
         });
     }
 
-    resendCode(username:string, callback:CognitoCallback):void {
+    resendCode(username: string, callback: CognitoCallback): void {
         let userData = {
             Username: username,
             Pool: this.cognitoUtil.getUserPool()
@@ -206,10 +205,10 @@ export class UserRegistrationService {
 @Injectable()
 export class UserLoginService {
 
-    constructor(public ddb:DynamoDBService, public cognitoUtil:CognitoUtil) {
+    constructor(public ddb: DynamoDBService, public cognitoUtil: CognitoUtil) {
     }
 
-    authenticate(username:string, password:string, callback:CognitoCallback) {
+    authenticate(username: string, password: string, callback: CognitoCallback) {
         console.log("UserLoginService: stgarting the authentication")
         // Need to provide placeholder keys unless unauthorised user access is enabled for user pool
         AWSCognito.config.update({accessKeyId: 'anything', secretAccessKey: 'anything'})
@@ -249,7 +248,7 @@ export class UserLoginService {
         });
     }
 
-    forgotPassword(username:string, callback:CognitoCallback) {
+    forgotPassword(username: string, callback: CognitoCallback) {
         let userData = {
             Username: username,
             Pool: this.cognitoUtil.getUserPool()
@@ -270,7 +269,7 @@ export class UserLoginService {
         });
     }
 
-    confirmNewPassword(email:string, verificationCode:string, password:string, callback:CognitoCallback) {
+    confirmNewPassword(email: string, verificationCode: string, password: string, callback: CognitoCallback) {
         let userData = {
             Username: email,
             Pool: this.cognitoUtil.getUserPool()
@@ -295,7 +294,7 @@ export class UserLoginService {
 
     }
 
-    isAuthenticated(callback:LoggedInCallback) {
+    isAuthenticated(callback: LoggedInCallback) {
         if (callback == null)
             throw("UserLoginService: Callback in isAuthenticated() cannot be null");
 
@@ -323,10 +322,10 @@ export class UserLoginService {
 @Injectable()
 export class UserParametersService {
 
-    constructor(public cognitoUtil:CognitoUtil) {
+    constructor(public cognitoUtil: CognitoUtil) {
     }
 
-    getParameters(callback:Callback) {
+    getParameters(callback: Callback) {
         let cognitoUser = this.cognitoUtil.getCurrentUser();
 
         if (cognitoUser != null) {

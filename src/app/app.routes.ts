@@ -1,22 +1,19 @@
 import {Routes, RouterModule} from "@angular/router";
 import {ModuleWithProviders} from "@angular/core";
 import {HomeLandingComponent, AboutComponent, HomeComponent} from "./public/home.component";
-import {
-    LoginComponent,
-    RegisterComponent,
-    RegistrationConfirmationComponent,
-    ResendCodeComponent,
-    ForgotPassword2Component,
-    ForgotPasswordStep1Component,
-    LogoutComponent
-} from "./public/auth/auth.component";
-import {SecureHomeComponent} from "./secure/securehome.component";
-import {MyProfileComponent} from "./secure/myprofile.component";
-import {JwtComponent} from "./secure/jwt.component";
-import {UseractivityComponent} from "./secure/useractivity.component";
+import {SecureHomeComponent} from "./secure/landing/securehome.component";
+import {MyProfileComponent} from "./secure/profile/myprofile.component";
+import {JwtComponent} from "./secure/jwttokens/jwt.component";
+import {UseractivityComponent} from "./secure/useractivity/useractivity.component";
 import {AppComponent} from "./app.component";
+import {PhotosComponent} from "./secure/photos/photos.component";
+import {LoginComponent} from "./public/auth/login/login.component";
+import {RegisterComponent} from "./public/auth/register/registration.component";
+import {ForgotPassword2Component, ForgotPasswordStep1Component} from "./public/auth/forgot/forgotPassword.component";
+import {RegistrationConfirmationComponent, LogoutComponent} from "./public/auth/confirm/confirmRegistration.component";
+import {ResendCodeComponent} from "./public/auth/resend/resendCode.component";
 
-const homeRoutes:Routes = [
+const homeRoutes: Routes = [
     {
         path: '',
         redirectTo: '/home',
@@ -38,7 +35,7 @@ const homeRoutes:Routes = [
     },
 ];
 
-const secureHomeRoutes:Routes = [
+const secureHomeRoutes: Routes = [
     {
 
         path: '',
@@ -51,11 +48,12 @@ const secureHomeRoutes:Routes = [
         {path: 'jwttokens', component: JwtComponent},
         {path: 'myprofile', component: MyProfileComponent},
         {path: 'useractivity', component: UseractivityComponent},
-        {path: '', component: MyProfileComponent}]
+        {path: 'photos', component: PhotosComponent},
+        {path: '', component: PhotosComponent}]
     }
 ];
 
-const routes:Routes = [
+const routes: Routes = [
     {
         path: '',
         component: AppComponent,
@@ -72,6 +70,6 @@ const routes:Routes = [
 
 ];
 
-export const appRoutingProviders:any[] = [];
+export const appRoutingProviders: any[] = [];
 
-export const routing:ModuleWithProviders = RouterModule.forRoot(routes);
+export const routing: ModuleWithProviders = RouterModule.forRoot(routes);

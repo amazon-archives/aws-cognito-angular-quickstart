@@ -12,7 +12,7 @@ Cognito Quickstart
 
 ## Frameworks
 * [AWS JavaScript SDK](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/browser-intro.html)
-* [AWS Rekognition](http://docs.aws.amazon.com/Rekognition)
+* [AWS Rekognition](https://aws.amazon.com/rekognition/)
 * [Angular 2](https://angular.io/docs/ts/latest/quickstart.html)
     * [TypeScript](https://www.typescriptlang.org/docs/tutorial.html)
 * [Bootstrap](http://getbootstrap.com/)

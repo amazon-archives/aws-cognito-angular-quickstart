@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 
-declare let AWS:any;
-declare let AWSCognito:any;
+declare let AWS: any;
+declare let AWSCognito: any;
 
 @Component({
     selector: 'awscognito-angular2-app',

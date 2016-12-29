@@ -15,7 +15,7 @@ import {UserLoginService, CognitoUtil, LoggedInCallback} from "./service/cognito
 })
 export class AppComponent implements OnInit, LoggedInCallback {
 
-    constructor(public awsUtil:AwsUtil, public userService:UserLoginService, public cognito:CognitoUtil) {
+    constructor(public awsUtil: AwsUtil, public userService: UserLoginService, public cognito: CognitoUtil) {
         console.log("AppComponent: constructor");
     }
 
@@ -24,14 +24,14 @@ export class AppComponent implements OnInit, LoggedInCallback {
         this.userService.isAuthenticated(this);
     }
 
-    isLoggedIn(message:string, isLoggedIn:boolean) {
+    isLoggedIn(message: string, isLoggedIn: boolean) {
         console.log("AppComponent: the user is authenticated: " + isLoggedIn);
         let mythis = this;
         this.cognito.getIdToken({
             callback() {
 
             },
-            callbackWithParam(token:any) {
+            callbackWithParam(token: any) {
                 // Include the passed-in callback here as well so that it's executed downstream
                 console.log("AppComponent: calling initAwsService in callback")
                 mythis.awsUtil.initAwsService(null, isLoggedIn, token);

@@ -1,13 +1,13 @@
 import {Injectable} from "@angular/core";
 import {CognitoUtil, Callback} from "./cognito.service";
 
-declare var AWS:any;
-declare var AMA:any;
+declare var AWS: any;
+declare var AMA: any;
 
 @Injectable()
 export class AwsUtil {
-    public static firstLogin:boolean = false;
-    public static runningInit:boolean = false;
+    public static firstLogin: boolean = false;
+    public static runningInit: boolean = false;
 
     constructor() {
         AWS.config.region = CognitoUtil._REGION;
@@ -16,7 +16,7 @@ export class AwsUtil {
     /**
      * This is the method that needs to be called in order to init the aws global creds
      */
-    initAwsService(callback:Callback, isLoggedIn:boolean, idToken:string) {
+    initAwsService(callback: Callback, isLoggedIn: boolean, idToken: string) {
 
         if (AwsUtil.runningInit) {
             // Need to make sure I don't get into an infinite loop here, so need to exit if this method is running already
@@ -48,7 +48,7 @@ export class AwsUtil {
      * @param isLoggedIn
      * @param callback
      */
-    setupAWS(isLoggedIn:boolean, callback:Callback, idToken:string):void {
+    setupAWS(isLoggedIn: boolean, callback: Callback, idToken: string): void {
         console.log("AwsUtil: in setupAWS()");
         if (isLoggedIn) {
             console.log("AwsUtil: User is logged in");
@@ -78,7 +78,7 @@ export class AwsUtil {
         AwsUtil.runningInit = false;
     }
 
-    addCognitoCredentials(idTokenJwt:string):void {
+    addCognitoCredentials(idTokenJwt: string): void {
         let params = AwsUtil.getCognitoParametersForIdConsolidation(idTokenJwt);
 
         AWS.config.credentials = new AWS.CognitoIdentityCredentials(params);
@@ -95,10 +95,10 @@ export class AwsUtil {
         });
     }
 
-    static getCognitoParametersForIdConsolidation(idTokenJwt:string):{} {
+    static getCognitoParametersForIdConsolidation(idTokenJwt: string): {} {
         console.log("AwsUtil: enter getCognitoParametersForIdConsolidation()");
         let url = 'cognito-idp.' + CognitoUtil._REGION.toLowerCase() + '.amazonaws.com/' + CognitoUtil._USER_POOL_ID;
-        let logins:Array<string> = [];
+        let logins: Array<string> = [];
         logins[url] = idTokenJwt;
         let params = {
             IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID, /* required */

@@ -1,8 +1,8 @@
 import {Injectable} from "@angular/core";
-import {Stuff} from "../secure/useractivity.component";
+import {Stuff} from "../secure/useractivity/useractivity.component";
 
-declare var AWS:any;
-declare var AWSCognito:any;
+declare var AWS: any;
+declare var AWSCognito: any;
 
 @Injectable()
 export class DynamoDBService {
@@ -11,7 +11,11 @@ export class DynamoDBService {
         console.log("DynamoDBService: constructor");
     }
 
-    getLogEntries(mapArray:Array<Stuff>) {
+    getAWS() {
+        return AWS;
+    }
+
+    getLogEntries(mapArray: Array<Stuff>) {
         console.log("DynamoDBService: reading from DDB with creds - " + AWS.config.credentials);
         var params = {
             TableName: 'LoginTrail',
@@ -37,7 +41,7 @@ export class DynamoDBService {
         }
     }
 
-    writeLogEntry(type:string) {
+    writeLogEntry(type: string) {
         try {
             let date = new Date().toString();
             console.log("DynamoDBService: Writing log entry. Type:" + type + " ID: " + AWS.config.credentials.params.IdentityId + " Date: " + date);
@@ -48,7 +52,7 @@ export class DynamoDBService {
 
     }
 
-    write(data:string, date:string, type:string):void {
+    write(data: string, date: string, type: string): void {
         console.log("DynamoDBService: writing " + type + " entry");
         var DDB = new AWS.DynamoDB({
             params: {TableName: 'LoginTrail'}
@@ -56,13 +60,13 @@ export class DynamoDBService {
 
         // Write the item to the table
         var itemParams =
-        {
-            Item: {
-                userId: {S: data},
-                activityDate: {S: date},
-                type: {S: type}
-            }
-        };
+            {
+                Item: {
+                    userId: {S: data},
+                    activityDate: {S: date},
+                    type: {S: type}
+                }
+            };
         DDB.putItem(itemParams, function (result) {
             console.log("DynamoDBService: wrote entry: " + JSON.stringify(result));
         });

@@ -1,11 +1,11 @@
 import {Component} from "@angular/core";
-import {LoggedInCallback, UserLoginService, CognitoUtil, Callback} from "../service/cognito.service";
+import {LoggedInCallback, UserLoginService, CognitoUtil, Callback} from "../../service/cognito.service";
 import {Router} from "@angular/router";
 
 
 export class Stuff {
-    public accessToken:string;
-    public idToken:string;
+    public accessToken: string;
+    public idToken: string;
 }
 
 @Component({
@@ -14,15 +14,15 @@ export class Stuff {
 })
 export class JwtComponent implements LoggedInCallback {
 
-    public stuff:Stuff = new Stuff();
+    public stuff: Stuff = new Stuff();
 
-    constructor(public router:Router, public userService:UserLoginService, public cognitoUtil:CognitoUtil) {
+    constructor(public router: Router, public userService: UserLoginService, public cognitoUtil: CognitoUtil) {
         this.userService.isAuthenticated(this);
         console.log("in JwtComponent");
 
     }
 
-    isLoggedIn(message:string, isLoggedIn:boolean) {
+    isLoggedIn(message: string, isLoggedIn: boolean) {
         if (!isLoggedIn) {
             this.router.navigate(['/home/login']);
         } else {
@@ -33,7 +33,7 @@ export class JwtComponent implements LoggedInCallback {
 }
 
 export class AccessTokenCallback implements Callback {
-    constructor(public jwt:JwtComponent) {
+    constructor(public jwt: JwtComponent) {
 
     }
 
@@ -47,7 +47,7 @@ export class AccessTokenCallback implements Callback {
 }
 
 export class IdTokenCallback implements Callback {
-    constructor(public jwt:JwtComponent) {
+    constructor(public jwt: JwtComponent) {
 
     }
 

@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
-import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
+import {LoggedInCallback, UserLoginService} from "../../service/cognito.service";
 
 @Component({
     selector: 'awscognito-angular2-app',
@@ -9,7 +9,7 @@ import {LoggedInCallback, UserLoginService} from "../service/cognito.service";
 })
 export class SecureHomeComponent implements OnInit, LoggedInCallback {
 
-    constructor(public router:Router, public userService:UserLoginService) {
+    constructor(public router: Router, public userService: UserLoginService) {
         this.userService.isAuthenticated(this);
         console.log("SecureHomeComponent: constructor");
     }
@@ -18,7 +18,7 @@ export class SecureHomeComponent implements OnInit, LoggedInCallback {
 
     }
 
-    isLoggedIn(message:string, isLoggedIn:boolean) {
+    isLoggedIn(message: string, isLoggedIn: boolean) {
         if (!isLoggedIn) {
             this.router.navigate(['/home/login']);
         }
