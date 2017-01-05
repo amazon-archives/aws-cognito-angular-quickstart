@@ -5,7 +5,7 @@
     <div *ngIf="errorMessage!=null" class="alert alert-danger">
         {{ errorMessage }}
     </div>
-    <div class="form-group">
+    <div class="form-group" *ngIf="email===null">
         <label class="control-label" for="confirmationCode">Email</label>
         <input id="email" type="email" maxlength="50" class="form-control"
                [(ngModel)]="email" [ngModelOptions]="{standalone: true}">
