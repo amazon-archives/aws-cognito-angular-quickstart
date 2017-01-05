@@ -146,7 +146,7 @@ export class ResendCodeComponent implements CognitoCallback {
         if (error != null) {
             this.errorMessage = "Something went wrong...please try again";
         } else {
-            this.router.navigate(['/home/confirmRegistration', {username: this.email}]);
+            this.router.navigate(['/home/confirmRegistration', this.email]);
         }
     }
 }
