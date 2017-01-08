@@ -1,6 +1,8 @@
 import {Injectable, Inject} from "@angular/core";
 import {DynamoDBService} from "./ddb.service";
 import {RegistrationUser} from "../public/auth/register/registration.component";
+import {AwsUtil} from "./aws.service";
+import {environment} from '../../environments/environment';
 
 declare var AWSCognito: any;
 declare var AWS: any;
@@ -21,11 +23,11 @@ export interface Callback {
 @Injectable()
 export class CognitoUtil {
 
-    public static _REGION = "us-east-1";
+    public static _REGION = environment.region;
 
-    public static _IDENTITY_POOL_ID = "us-east-1:fbe0340f-9ffc-4449-a935-bb6a6661fd53";
-    public static _USER_POOL_ID = "us-east-1_PGSbCVZ7S";
-    public static _CLIENT_ID = "hh5ibv67so0qukt55c5ulaltk";
+    public static _IDENTITY_POOL_ID = environment.identityPoolId;
+    public static _USER_POOL_ID = environment.userPoolId;
+    public static _CLIENT_ID = environment.clientId;
 
     public static _POOL_DATA = {
         UserPoolId: CognitoUtil._USER_POOL_ID,
@@ -230,12 +232,13 @@ export class UserLoginService {
         cognitoUser.authenticateUser(authenticationDetails, {
             onSuccess: function (result) {
 
+                var logins = {}
+                logins['cognito-idp.us-east-1.amazonaws.com/' + CognitoUtil._USER_POOL_ID] = result.getIdToken().getJwtToken();
+
                 // Add the User's Id Token to the Cognito credentials login map.
                 AWS.config.credentials = new AWS.CognitoIdentityCredentials({
                     IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID,
-                    Logins: {
-                        'cognito-idp.us-east-1.amazonaws.com/us-east-1_PGSbCVZ7S': result.getIdToken().getJwtToken()
-                    }
+                    Logins: logins
                 });
 
                 console.log("UserLoginService: set the AWS credentials - " + JSON.stringify(AWS.config.credentials));

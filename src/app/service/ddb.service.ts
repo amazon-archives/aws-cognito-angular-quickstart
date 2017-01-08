@@ -1,4 +1,5 @@
 import {Injectable} from "@angular/core";
+import {environment} from '../../environments/environment';
 import {Stuff} from "../secure/useractivity/useractivity.component";
 
 declare var AWS: any;
@@ -18,7 +19,7 @@ export class DynamoDBService {
     getLogEntries(mapArray: Array<Stuff>) {
         console.log("DynamoDBService: reading from DDB with creds - " + AWS.config.credentials);
         var params = {
-            TableName: 'LoginTrail',
+            TableName: environment.ddbTableName,
             KeyConditionExpression: "userId = :userId",
             ExpressionAttributeValues: {
                 ":userId": AWS.config.credentials.params.IdentityId
@@ -55,7 +56,7 @@ export class DynamoDBService {
     write(data: string, date: string, type: string): void {
         console.log("DynamoDBService: writing " + type + " entry");
         var DDB = new AWS.DynamoDB({
-            params: {TableName: 'LoginTrail'}
+            params: {TableName: environment.ddbTableName}
         });
 
         // Write the item to the table

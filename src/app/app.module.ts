@@ -12,7 +12,6 @@ import {MyProfileComponent} from "./secure/profile/myprofile.component";
 import {SecureHomeComponent} from "./secure/landing/securehome.component";
 import {JwtComponent} from "./secure/jwttokens/jwt.component";
 import {DynamoDBService} from "./service/ddb.service";
-import {PhotosComponent} from "./secure/photos/photos.component";
 import {Ng2AutoCompleteModule} from "ng2-auto-complete";
 import {Ng2UploaderModule} from "ng2-uploader";
 import {LoginComponent} from "./public/auth/login/login.component";
@@ -38,8 +37,7 @@ import {ResendCodeComponent} from "./public/auth/resend/resendCode.component";
         MyProfileComponent,
         SecureHomeComponent,
         JwtComponent,
-        AppComponent,
-        PhotosComponent
+        AppComponent
     ],
     imports: [
         Ng2AutoCompleteModule,
