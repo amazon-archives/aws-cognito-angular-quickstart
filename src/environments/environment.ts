@@ -12,5 +12,9 @@ export const environment = {
   userPoolId: 'us-east-1_PGSbCVZ7S',
   clientId: 'hh5ibv67so0qukt55c5ulaltk',
 
+  rekognitionBucket: 'rekognition-pics',
+  albumName: "usercontent",
+  bucketRegion: 'us-east-1',
+
   ddbTableName: 'LoginTrail'
 };

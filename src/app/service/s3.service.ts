@@ -1,16 +1,12 @@
-import {_REKOGNITION_BUCKET} from "./properties.service";
+import {environment} from "../../environments/environment";
 
 /**
- * Created by vova on 11/22/16.
+ * Created by Vladimir Budilov
  */
 
 declare var AWS: any;
 
 export class S3Service {
-
-    albumName = "usercontent";
-    bucketRegion = 'us-east-1';
-    IdentityPoolId = 'us-east-1:fbe0340f-9ffc-4449-a935-bb6a6661fd53';
 
     constructor() {
 
@@ -18,13 +14,13 @@ export class S3Service {
 
     private getS3(): any {
         AWS.config.update({
-            region: this.bucketRegion,
+            region: environment.bucketRegion,
         });
 
         var s3 = new AWS.S3({
-            region: this.bucketRegion,
+            region: environment.bucketRegion,
             apiVersion: '2006-03-01',
-            params: {Bucket: _REKOGNITION_BUCKET}
+            params: {Bucket: environment.rekognitionBucket}
         });
 
         return s3
@@ -36,7 +32,7 @@ export class S3Service {
             return;
         }
         let fileName = selectedFile.name;
-        let albumPhotosKey = this.albumName + '/' + AWS.config.credentials.identityId + "/";
+        let albumPhotosKey = environment.albumName + '/' + AWS.config.credentials.identityId + "/";
         let photoKey = albumPhotosKey + fileName;
 
         this.getS3().upload({
@@ -69,7 +65,7 @@ export class S3Service {
     }
 
     public viewAlbum(albumName) {
-        var albumPhotosKey = encodeURIComponent(this.albumName) + '//';
+        var albumPhotosKey = encodeURIComponent(environment.albumName) + '//';
         this.getS3().listObjects({Prefix: albumPhotosKey}, function (err, data) {
             if (err) {
                 console.log('There was an error viewing your album: ' + err);

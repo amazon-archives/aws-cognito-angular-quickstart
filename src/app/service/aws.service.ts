@@ -1,6 +1,11 @@
 import {Injectable} from "@angular/core";
 import {CognitoUtil, Callback} from "./cognito.service";
 
+/**
+ * Created by Vladimir Budilov
+ */
+
+
 declare var AWS: any;
 declare var AMA: any;
 

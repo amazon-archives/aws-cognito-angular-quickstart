@@ -1,8 +1,12 @@
 import {Injectable, Inject} from "@angular/core";
 import {DynamoDBService} from "./ddb.service";
 import {RegistrationUser} from "../public/auth/register/registration.component";
-import {AwsUtil} from "./aws.service";
-import {environment} from '../../environments/environment';
+import {environment} from "../../environments/environment";
+
+/**
+ * Created by Vladimir Budilov
+ */
+
 
 declare var AWSCognito: any;
 declare var AWS: any;
