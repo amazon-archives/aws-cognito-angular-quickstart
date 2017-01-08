@@ -48,6 +48,10 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit
         if (message != null) { //error
             this.errorMessage = message;
             console.log("result: " + this.errorMessage);
+            if (this.errorMessage === 'User is not confirmed.') {
+              console.log("redirecting");
+              this.router.navigate(['/home/confirmRegistration', this.email]);
+            }
         } else { //success
             this.ddb.writeLogEntry("login");
             this.router.navigate(['/securehome']);
@@ -96,7 +100,7 @@ export class RegistrationConfirmationComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.sub = this.route.params.subscribe(params => {
-            this.email = params['email'];
+            this.email = params.username;
 
         });
 
@@ -146,7 +150,7 @@ export class ResendCodeComponent implements CognitoCallback {
         if (error != null) {
             this.errorMessage = "Something went wrong...please try again";
         } else {
-            this.router.navigate(['/home/confirmRegistration', {username: this.email}]);
+            this.router.navigate(['/home/confirmRegistration', this.email]);
         }
     }
 }
