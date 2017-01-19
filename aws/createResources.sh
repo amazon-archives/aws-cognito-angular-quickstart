@@ -47,7 +47,7 @@ aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --pol
 # Create an IAM role for authenticated users
 cat authrole-trust-policy.json | sed 's/IDENTITY_POOL/'$identityPoolId'/' > /tmp/authrole-trust-policy.json
 aws iam create-role --role-name $ROLE_NAME_PREFIX-authenticated-role --assume-role-policy-document file:///tmp/authrole-trust-policy.json
-cat authrole.json | sed 's/TABLE_NAME/'$TABLE_NAME'/' | sed 's/ACCOUNT_NUMBER/'$AWS_ACCOUNT'/' > /tmp/authrole.json
+cat authrole.json | sed 's/TABLE_NAME/'$TABLE_NAME'/' | sed 's/ACCOUNT_NUMBER/'$AWS_ACCOUNT'/' | sed 's/REGION/'$REGION'/' > /tmp/authrole.json
 aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-name CognitoPolicy --policy-document file:///tmp/authrole.json
 
 # Create the user pool
