@@ -2,7 +2,7 @@ Cognito Quickstart
 ===================================================
 
 # What does this app do?
-![QuickStart Angular2 Cognito App](/aws/cognito-quickstart-app-overview.png?raw=true)
+![QuickStart Angular2 Cognito App](/aws/meta/Cognito-Angular2-QuickStart.png?raw=true)
 
 # Tech Stack
 ## Required Tools
@@ -12,6 +12,7 @@ Cognito Quickstart
 
 ## Frameworks
 * [AWS JavaScript SDK](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/browser-intro.html)
+* [AWS Rekognition](https://aws.amazon.com/rekognition/)
 * [Angular 2](https://angular.io/docs/ts/latest/quickstart.html)
     * [TypeScript](https://www.typescriptlang.org/docs/tutorial.html)
 * [Bootstrap](http://getbootstrap.com/)
