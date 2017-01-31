@@ -1,0 +1,13 @@
+[
+  {
+    "Name": "email",
+    "AttributeDataType": "String",
+    "DeveloperOnlyAttribute": false,
+    "Mutable": false,
+    "Required": true,
+    "StringAttributeConstraints": {
+      "MinLength": "0",
+      "MaxLength": "2048"
+    }
+  }
+]

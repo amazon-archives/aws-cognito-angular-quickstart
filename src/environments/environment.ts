@@ -1,20 +1,16 @@
-// The file contents for the current environment will overwrite these during build.
-// The build system defaults to the dev environment which uses `environment.ts`, but if you do
-// `ng build --env=prod` then `environment.prod.ts` will be used instead.
-// The list of which env maps to which file can be found in `angular-cli.json`.
-
 export const environment = {
-  production: false,
+    production: false,
 
-  region: 'us-east-1',
+    region: 'us-west-2',
 
-  identityPoolId: 'us-east-1:fbe0340f-9ffc-4449-a935-bb6a6661fd53',
-  userPoolId: 'us-east-1_PGSbCVZ7S',
-  clientId: 'hh5ibv67so0qukt55c5ulaltk',
+    identityPoolId: 'us-west-2:30cc6631-6472-4103-b89f-3c1df50c7f62',
+    userPoolId: 'us-west-2_lsVAem5p6',
+    clientId: '7sqsf676q7cjofded0q9ck2fpl',
 
-  rekognitionBucket: 'rekognition-pics',
-  albumName: "usercontent",
-  bucketRegion: 'us-east-1',
+    rekognitionBucket: 'rekognition-pics',
+    albumName: "usercontent",
+    bucketRegion: 'us-west-2',
 
-  ddbTableName: 'LoginTrail'
+    ddbTableName: 'LoginTrailbudilovdeletecogdemo'
 };
+
