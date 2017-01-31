@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ROOT_NAME=budilovdeletecogdemo
+ROOT_NAME=budilovdelete
 # Bucket name must be all lowercase, and start/end with lowecase letter or number
 # $(echo...) code to work with versions of bash older than 4.0
 BUCKET_NAME=budilov-$(echo "$ROOT_NAME" | tr '[:upper:]' '[:lower:]')
@@ -13,6 +13,7 @@ REGION=us-west-2
 EB_INSTANCE_TYPE=t2.small
 EB_PLATFORM=node.js
 CURR_DIR=$( cd $(dirname $0) ; pwd -P )
+ROOT_DIR=$CURR_DIR/..
 
 DDB_TABLE_ARN=""
 IDENTITY_POOL_ID=""
@@ -29,7 +30,7 @@ createS3Bucket() {
     aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/s3-bucket-policy.json
     #Build the project and sync it up to the bucket
     ng build --prod ../
-    aws s3 sync ../dist/ s3://$BUCKET_NAME/
+    aws s3 sync $ROOT_DIR/dist/ s3://$BUCKET_NAME/
 }
 
 createDDBTable() {
@@ -84,7 +85,7 @@ createCognitoResources() {
 }
 
 createEBResources() {
-    cd $CURR_DIR/../
+    cd $ROOT_DIR
     sleep 1
     eb init $ROOT_NAME --region $REGION --platform $EB_PLATFORM
     sleep 1
@@ -122,7 +123,7 @@ export const environment = {
 };
 
 EOF
-) > $CURR_DIR/../src/environments/environment.ts
+) > $ROOT_DIR/src/environments/environment.ts
 
 (
 cat <<EOF
@@ -143,9 +144,9 @@ export const environment = {
 };
 
 EOF
-) > $CURR_DIR/../src/environments/environment.prod.ts
+) > $ROOT_DIR/src/environments/environment.prod.ts
 
-cd $CURR_DIR/../
+cd $ROOT_DIR
 git add .
 git commit -m "Updated config files for created resources"
 cd $CURR_DIR

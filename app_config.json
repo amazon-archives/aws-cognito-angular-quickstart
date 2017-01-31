@@ -1,7 +1,0 @@
-{
-    "AWS_REGION": "us-west-2",
-    "AWS_COGNITO_USERPOOLID": "us-west-2_yv5XO7TOC",
-    "AWS_COGNITO_CLIENTID": "7euuf658388svpl2rnfdcqn626",
-    "AWS_COGNITO_IDENTITY_POOL_ID": "us-west-2:b4e35c1b-6b80-4dda-8111-f5db206d4a11",
-    "AWS_DYNAMODB_TABLENAME": "LoginTrailbudilovdeletecogdemo"
-}
