@@ -7,6 +7,7 @@ Cognito Quickstart
 # Tech Stack
 ## Required Tools
 * [aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html)
+* [eb cli](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html)
 * [npm](https://www.npmjs.com/)
 * [angular-cli](https://github.com/angular/angular-cli)
 
@@ -21,13 +22,9 @@ Cognito Quickstart
 ##### Install the required tools
 * Create an AWS account
 * Install [npm](https://www.npmjs.com/)
-* Run ```npm install``` at the project's root level
 * [Install or update your aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) 
+* [Install or update your eb cli](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html) 
 * [Install angular-cli](https://github.com/angular/angular-cli)
-
-##### This will install the AWS resources
-* ```cd aws``` 
-* ```./createResources.sh```
 
 
 # Getting the code
@@ -40,9 +37,30 @@ git clone --depth 1 git@github.com:awslabs/aws-cognito-angular2-quickstart.git
 npm install
 ```
 ```
+# Install the AWS resources and deploy your application to either Elastic Beanstalk or S3
+cd aws
+./createResources.sh
+```
+```
 # Run the app in dev mode
+cd ../
 npm start
 ```
+
+# Pushing changes
+##### Elastic Beanstalk
+```
+# Commit your latest changes and deploy it to your environment
+git add .
+git commit
+eb deploy
+```
+```
+# Test it out
+eb open
+```
+
+##### S3
 ```
 # Build the project and sync the output with the S3 bucket
 ng build; cd dist; aws s3 sync . s3://budilov-cognito/
@@ -51,11 +69,3 @@ ng build; cd dist; aws s3 sync . s3://budilov-cognito/
 # Test it out
 curl –I http://budilov-cognito.s3-website-us-east-1.amazonaws.com/
 ```
-
-# Necessary changes
-Modify the following 2 files with your newly-created AWS service ids (Cognito, DDB, etc)
-```
-src/environments/environment.ts
-src/environments/environment.prod.ts
-```
-
