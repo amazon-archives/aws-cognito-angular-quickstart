@@ -33,39 +33,37 @@ Cognito Quickstart
 git clone --depth 1 git@github.com:awslabs/aws-cognito-angular2-quickstart.git
 ```
 ```
-# Install the NPM packages
-npm install
-```
-```
 # Install the AWS resources and deploy your application to either Elastic Beanstalk or S3
 cd aws
 ./createResources.sh
 ```
+
+# Elastic Beanstalk
 ```
 # Run the app in dev mode
-cd ../
-npm start
+npm install; npm run build; npm start
 ```
-
-# Pushing changes
-##### Elastic Beanstalk
 ```
-# Commit your latest changes and deploy it to your environment
+# Commit your changes and deploy it to your environment
 git add .
 git commit
 eb deploy
 ```
 ```
-# Test it out
+# Test your deployed application
 eb open
 ```
 
-##### S3
+# S3
+```
+# Run the app in dev mode  
+npm run startng
+```
 ```
 # Build the project and sync the output with the S3 bucket
-ng build; cd dist; aws s3 sync . s3://budilov-cognito/
+npm run build; cd dist; aws s3 sync . s3://[BUCKET_NAME]/
 ```
 ```
-# Test it out
-curl –I http://budilov-cognito.s3-website-us-east-1.amazonaws.com/
+# Test your deployed application
+curl –I http://[BUCKET_NAME].s3-website-[REGION].amazonaws.com/
 ```

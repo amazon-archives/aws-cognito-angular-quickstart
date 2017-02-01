@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ROOT_NAME=budilovdelete
+ROOT_NAME=budilovdeleteeb4
 # Bucket name must be all lowercase, and start/end with lowecase letter or number
 # $(echo...) code to work with versions of bash older than 4.0
 BUCKET_NAME=budilov-$(echo "$ROOT_NAME" | tr '[:upper:]' '[:lower:]')
@@ -14,39 +14,13 @@ EB_INSTANCE_TYPE=t2.small
 EB_PLATFORM=node.js
 CURR_DIR=$( cd $(dirname $0) ; pwd -P )
 ROOT_DIR=$CURR_DIR/..
+NPM_DIR=$ROOT_DIR/node_modules/
 
 DDB_TABLE_ARN=""
 IDENTITY_POOL_ID=""
 USER_POOL_ID=""
 USER_POOL_CLIENT_ID=""
 
-
-createS3Bucket() {
-    # Create the bucket
-    aws s3 mb s3://$BUCKET_NAME/ --region $REGION
-    # Add the ‘website’ configuration and bucket policy
-    aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html
-    cat s3-bucket-policy.json | sed 's/BUCKET_NAME/'$BUCKET_NAME'/' > /tmp/s3-bucket-policy.json
-    aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/s3-bucket-policy.json
-    #Build the project and sync it up to the bucket
-    ng build --prod ../
-    aws s3 sync $ROOT_DIR/dist/ s3://$BUCKET_NAME/
-}
-
-createDDBTable() {
-    # Create DDB Table
-    aws dynamodb create-table \
-        --table-name $TABLE_NAME \
-        --attribute-definitions \
-            AttributeName=userId,AttributeType=S \
-            AttributeName=activityDate,AttributeType=S \
-        --key-schema AttributeName=userId,KeyType=HASH AttributeName=activityDate,KeyType=RANGE \
-        --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
-        --region $REGION \
-        > /tmp/dynamoTable
-
-    DDB_TABLE_ARN=$(perl -nle 'print $& if m{"TableArn":\s*"\K([^"]*)}' /tmp/dynamoTable | awk -F'"' '{print $1}')
-}
 
 createCognitoResources() {
     # Create a Cognito Identity and Set roles
@@ -84,19 +58,73 @@ createCognitoResources() {
     aws cognito-identity set-identity-pool-roles --identity-pool-id $IDENTITY_POOL_ID --roles authenticated=$AUTH_ROLE_ARN,unauthenticated=$UNAUTH_ROLE_ARN --region $REGION
 }
 
+createDDBTable() {
+    # Create DDB Table
+    aws dynamodb create-table \
+        --table-name $TABLE_NAME \
+        --attribute-definitions \
+            AttributeName=userId,AttributeType=S \
+            AttributeName=activityDate,AttributeType=S \
+        --key-schema AttributeName=userId,KeyType=HASH AttributeName=activityDate,KeyType=RANGE \
+        --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
+        --region $REGION \
+        > /tmp/dynamoTable
+
+    DDB_TABLE_ARN=$(perl -nle 'print $& if m{"TableArn":\s*"\K([^"]*)}' /tmp/dynamoTable | awk -F'"' '{print $1}')
+}
+
 createEBResources() {
+    verifyEBCLI
+
+    # Commit changes made
     cd $ROOT_DIR
+    git add .
+    git commit -m "Updated config files for created resources"
     sleep 1
+
+    # Create Elastic Beanstalk application
     eb init $ROOT_NAME --region $REGION --platform $EB_PLATFORM
     sleep 1
+
+    # Create Elastic Beanstalk environment
     eb create $ROOT_NAME -d --region $REGION --platform $EB_PLATFORM --instance_type $EB_INSTANCE_TYPE
     cd $CURR_DIR
+}
+
+createS3Bucket() {
+    # Create the bucket
+    aws s3 mb s3://$BUCKET_NAME/ --region $REGION
+    # Add the ‘website’ configuration and bucket policy
+    aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html
+    cat s3-bucket-policy.json | sed 's/BUCKET_NAME/'$BUCKET_NAME'/' > /tmp/s3-bucket-policy.json
+    aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/s3-bucket-policy.json
+    #Build the project and sync it up to the bucket
+    if [ ! -d "$NPM_DIR" ]; then
+        npm install
+    fi
+    ng build --prod ../
+    aws s3 sync $ROOT_DIR/dist/ s3://$BUCKET_NAME/
+}
+
+printConfig() {
+    sleep 3
+    echo "Region: " $REGION
+    echo "DynamoDB: " $TABLE_NAME
+    echo "Bucket name: " $BUCKET_NAME
+    echo "Identity Pool name: " $IDENTITY_POOL_NAME
+    echo "Identity Pool id: " $IDENTITY_POOL_ID
+}
+
+provisionGlobalResources() {
+    createDDBTable
+    createCognitoResources
+    writeConfigFiles
 }
 
 verifyEBCLI() {
     if command -v eb >/dev/null; then
         echo "Creating Elastic Beanstalk environment ..."
-        createEBResources
+        #createEBResources
     else
         echo "Please install the Elastic Beanstalk Command Line Interface first"
         exit 1;
@@ -146,11 +174,6 @@ export const environment = {
 EOF
 ) > $ROOT_DIR/src/environments/environment.prod.ts
 
-cd $ROOT_DIR
-git add .
-git commit -m "Updated config files for created resources"
-cd $CURR_DIR
-
 }
 
 
@@ -158,19 +181,17 @@ PS3='Where would you like to deploy your application? '
 options=("Elastic Beanstalk" "S3" "Quit")
 select opt in "${options[@]}"
 do
-
-    createDDBTable
-    createCognitoResources
-    writeConfigFiles
-
     case $opt in
         "Elastic Beanstalk")
-            verifyEBCLI
+            provisionGlobalResources
+            createEBResources
+            printConfig
             break
             ;;
         "S3")
-#            echo "you chose S3"
+            provisionGlobalResources
             createS3Bucket
+            printConfig
             break
             ;;
         "Quit")
@@ -181,12 +202,7 @@ do
 done
 
 
-sleep 3
-echo "Region: " $REGION
-echo "DynamoDB: " $TABLE_NAME
-echo "Bucket name: " + $BUCKET_NAME
-echo "Identity Pool name: " $IDENTITY_POOL_NAME
-echo "Identity Pool id: " $IDENTITY_POOL_ID
+
 
 
 
