@@ -35,6 +35,6 @@ Thumbs.db
 !.elasticbeanstalk/*.global.yml
 
 # Build Artifacts
-Archive.zip
+upload.zip
 test.pem
 resetConfig.sh

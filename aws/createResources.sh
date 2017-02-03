@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-ROOT_NAME=budilovdeleteeb4
 # Bucket name must be all lowercase, and start/end with lowecase letter or number
 # $(echo...) code to work with versions of bash older than 4.0
-BUCKET_NAME=budilov-$(echo "$ROOT_NAME" | tr '[:upper:]' '[:lower:]')
+
+echo -n "Enter the name for your resources (must be all lowercase with no spaces) and press [ENTER]: "
+read ROOT_NAME
+
+BUCKET_NAME=cognitosample-$(echo "$ROOT_NAME" | tr '[:upper:]' '[:lower:]')
 TABLE_NAME=LoginTrail$ROOT_NAME
 
 ROLE_NAME_PREFIX=$ROOT_NAME
@@ -31,11 +34,25 @@ createCognitoResources() {
     # Create an IAM role for unauthenticated users
     cat unauthrole-trust-policy.json | sed 's/IDENTITY_POOL/'$IDENTITY_POOL_ID'/' > /tmp/unauthrole-trust-policy.json
     aws iam create-role --role-name $ROLE_NAME_PREFIX-unauthenticated-role --assume-role-policy-document file:///tmp/unauthrole-trust-policy.json > /tmp/iamUnauthRole
+    if [ $? -eq 0 ]
+    then
+        echo "IAM unauthenticated role successfully created"
+    else
+        echo "Using the existing role ..."
+        aws iam get-role --role-name $ROLE_NAME_PREFIX-unauthenticated-role  > /tmp/iamUnauthRole
+    fi
     aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --policy-name CognitoPolicy --policy-document file://unauthrole.json
 
     # Create an IAM role for authenticated users
     cat authrole-trust-policy.json | sed 's/IDENTITY_POOL/'$IDENTITY_POOL_ID'/' > /tmp/authrole-trust-policy.json
     aws iam create-role --role-name $ROLE_NAME_PREFIX-authenticated-role --assume-role-policy-document file:///tmp/authrole-trust-policy.json > /tmp/iamAuthRole
+    if [ $? -eq 0 ]
+    then
+        echo "IAM authenticated role successfully created"
+    else
+        echo "Using the existing role ..."
+        aws iam get-role --role-name $ROLE_NAME_PREFIX-authenticated-role  > /tmp/iamAuthRole
+    fi
     cat authrole.json | sed 's~DDB_TABLE_ARN~'$DDB_TABLE_ARN'~' > /tmp/authrole.json
     aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-name CognitoPolicy --policy-document file:///tmp/authrole.json
 
@@ -50,7 +67,9 @@ createCognitoResources() {
     echo "Created user pool client with id of " $USER_POOL_CLIENT_ID
 
     # Add the user pool and user pool client id to the identity pool
-    aws cognito-identity update-identity-pool --allow-unauthenticated-identities --identity-pool-id $IDENTITY_POOL_ID --identity-pool-name $IDENTITY_POOL_NAME --cognito-identity-providers ProviderName=cognito-idp.$REGION.amazonaws.com/$USER_POOL_ID,ClientId=$USER_POOL_CLIENT_ID --region $REGION
+    aws cognito-identity update-identity-pool --allow-unauthenticated-identities --identity-pool-id $IDENTITY_POOL_ID --identity-pool-name $IDENTITY_POOL_NAME \
+        --cognito-identity-providers ProviderName=cognito-idp.$REGION.amazonaws.com/$USER_POOL_ID,ClientId=$USER_POOL_CLIENT_ID --region $REGION \
+        > /tmp/$IDENTITY_POOL_ID-add-user-pool
 
     # Update cognito identity with the roles
     UNAUTH_ROLE_ARN=$(perl -nle 'print $& if m{"Arn":\s*"\K([^"]*)}' /tmp/iamUnauthRole | awk -F'"' '{print $1}')
@@ -70,6 +89,14 @@ createDDBTable() {
         --region $REGION \
         > /tmp/dynamoTable
 
+    if [ $? -eq 0 ]
+    then
+        echo "DynamoDB table successfully created"
+    else
+        echo "Using the existing table ..."
+        aws dynamodb describe-table --table-name $TABLE_NAME > /tmp/dynamoTable
+    fi
+
     DDB_TABLE_ARN=$(perl -nle 'print $& if m{"TableArn":\s*"\K([^"]*)}' /tmp/dynamoTable | awk -F'"' '{print $1}')
 }
 
@@ -78,22 +105,57 @@ createEBResources() {
 
     # Commit changes made
     cd $ROOT_DIR
-    git add .
-    git commit -m "Updated config files for created resources"
-    sleep 1
 
     # Create Elastic Beanstalk application
     eb init $ROOT_NAME --region $REGION --platform $EB_PLATFORM
     sleep 1
 
+    zip -r upload.zip . -x node_modules/\* *.git* *.idea* *.DS_Store*
+cat <<EOT >> $ROOT_DIR/.elasticbeanstalk/config.yml
+deploy:
+  artifact: upload.zip
+EOT
+
+    sleep 1
+
     # Create Elastic Beanstalk environment
     eb create $ROOT_NAME -d --region $REGION --platform $EB_PLATFORM --instance_type $EB_INSTANCE_TYPE
+
+    if [ $? -eq 0 ]
+    then
+        echo "Elastic Beanstalk environment creation failed"
+    else
+        echo "Elastic Beanstalk environment creation successful"
+    fi
+
     cd $CURR_DIR
 }
 
 createS3Bucket() {
     # Create the bucket
-    aws s3 mb s3://$BUCKET_NAME/ --region $REGION
+    aws s3 mb s3://$BUCKET_NAME/ --region $REGION 2>/tmp/s3-mb-status
+    status=$?
+
+    if [ $status -eq 0 ]
+    then
+        echo "S3 bucket successfully created"
+        uploadS3Bucket
+    else
+        if grep "BucketAlreadyOwnedByYou" /tmp/s3-mb-status > /dev/null
+        then
+            echo "Using the existing S3 bucket ..."
+            uploadS3Bucket
+        else
+            echo -n "The requested S3 bucket name is not available. Please enter a different name and try again : "
+            read newName
+            BUCKET_NAME=cognitosample-$(echo "$newName" | tr '[:upper:]' '[:lower:]')
+            echo "Attempting to create bucket named $BUCKET_NAME"
+            createS3Bucket
+        fi
+    fi
+}
+
+uploadS3Bucket() {
     # Add the ‘website’ configuration and bucket policy
     aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html
     cat s3-bucket-policy.json | sed 's/BUCKET_NAME/'$BUCKET_NAME'/' > /tmp/s3-bucket-policy.json
@@ -107,12 +169,12 @@ createS3Bucket() {
 }
 
 printConfig() {
-    sleep 3
     echo "Region: " $REGION
     echo "DynamoDB: " $TABLE_NAME
     echo "Bucket name: " $BUCKET_NAME
     echo "Identity Pool name: " $IDENTITY_POOL_NAME
     echo "Identity Pool id: " $IDENTITY_POOL_ID
+    echo "Finished AWS resource creation. Status: SUCCESS"
 }
 
 provisionGlobalResources() {
@@ -124,7 +186,6 @@ provisionGlobalResources() {
 verifyEBCLI() {
     if command -v eb >/dev/null; then
         echo "Creating Elastic Beanstalk environment ..."
-        #createEBResources
     else
         echo "Please install the Elastic Beanstalk Command Line Interface first"
         exit 1;
@@ -177,34 +238,37 @@ EOF
 }
 
 
-PS3='Where would you like to deploy your application? '
-options=("Elastic Beanstalk" "S3" "Quit")
-select opt in "${options[@]}"
-do
-    case $opt in
-        "Elastic Beanstalk")
-            provisionGlobalResources
-            createEBResources
-            printConfig
-            break
-            ;;
-        "S3")
-            provisionGlobalResources
-            createS3Bucket
-            printConfig
-            break
-            ;;
-        "Quit")
-            break
-            ;;
-        *) echo invalid option;;
-    esac
-done
 
+if [[ $ROOT_NAME =~ [[:upper:]]|[[:space:]] || -z "$ROOT_NAME" ]]; then
+    echo "Invalid format"
+    exit 1
+else
+    echo "All AWS resources will be created with [$ROOT_NAME] as part of their name"
 
-
-
-
-
-
-
+    PS3='Where would you like to deploy your application? '
+    options=("Elastic Beanstalk" "S3" "Quit")
+    select opt in "${options[@]}"
+    do
+        case $opt in
+            "Elastic Beanstalk")
+                provisionGlobalResources
+                createEBResources
+                printConfig
+                break
+                ;;
+            "S3")
+                provisionGlobalResources
+                createS3Bucket
+                printConfig
+                break
+                ;;
+            "Quit")
+                exit 1
+                ;;
+            *)
+                echo "Invalid option"
+                exit 1
+                ;;
+        esac
+    done
+fi
