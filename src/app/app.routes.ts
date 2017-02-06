@@ -54,7 +54,6 @@ const secureHomeRoutes: Routes = [
 const routes: Routes = [
     {
         path: '',
-        component: AppComponent,
         children: [
             ...homeRoutes,
             ...secureHomeRoutes,
