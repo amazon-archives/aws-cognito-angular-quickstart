@@ -40,6 +40,7 @@ createCognitoResources() {
     else
         echo "Using the existing role ..."
         aws iam get-role --role-name $ROLE_NAME_PREFIX-unauthenticated-role  > /tmp/iamUnauthRole
+        aws iam update-assume-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --policy-document file:///tmp/unauthrole-trust-policy.json
     fi
     aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --policy-name CognitoPolicy --policy-document file://unauthrole.json
 
@@ -52,6 +53,7 @@ createCognitoResources() {
     else
         echo "Using the existing role ..."
         aws iam get-role --role-name $ROLE_NAME_PREFIX-authenticated-role  > /tmp/iamAuthRole
+        aws iam update-assume-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-document file:///tmp/authrole-trust-policy.json
     fi
     cat authrole.json | sed 's~DDB_TABLE_ARN~'$DDB_TABLE_ARN'~' > /tmp/authrole.json
     aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-name CognitoPolicy --policy-document file:///tmp/authrole.json
