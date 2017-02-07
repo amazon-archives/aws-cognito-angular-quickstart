@@ -1,11 +1,11 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/dist/**/*
+/dist
 /tmp
 
 # dependencies
-/node_modules/**/*
+/node_modules
 /src/bower_components
 /public/bower_components
 
@@ -36,5 +36,4 @@ Thumbs.db
 
 # Build Artifacts
 upload.zip
-test.pem
 resetConfig.sh

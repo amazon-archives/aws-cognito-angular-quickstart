@@ -26,7 +26,6 @@
     "@angular/router": "3.2.4",
     "core-js": "2.4.1",
     "ng2-auto-complete": "^0.7.4",
-
     "rxjs": "5.0.0-beta.12",
     "ts-helpers": "1.1.1",
     "zone.js": "0.6.23",
@@ -39,12 +38,9 @@
     "morgan": "~1.7.0",
     "serve-favicon": "~2.3.0",
 
-
     "angular-cli": "1.0.0-beta.20-4",
-
     "@types/jasmine": "2.2.30",
     "@types/selenium-webdriver": "2.44.26",
-
     "codelyzer": "~0.0.26",
     "jasmine-core": "2.4.1",
     "jasmine-spec-reporter": "2.5.0",
@@ -62,7 +58,6 @@
     "webpack-dev-server": "2.1.0-beta.9",
     "webpack-md5-hash": "0.0.5",
     "webpack-merge": "0.15.0",
-
     "extract-text-webpack-plugin": "2.0.0-beta.4"
 
   },
