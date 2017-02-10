@@ -4,8 +4,8 @@
   "version": "1.0.0",
   "angular-cli": {},
   "scripts": {
-    "start": "node ./bin/www",
-    "startng": "ng serve",
+    "start": "ng serve",
+    "startnode": "node ./bin/www",
     "lint": "tslint \"src/**/*.ts\"",
     "test": "ng test",
     "pree2e": "webdriver-manager update",

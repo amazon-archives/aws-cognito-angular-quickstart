@@ -123,13 +123,6 @@ EOT
     # Create Elastic Beanstalk environment
     eb create $ROOT_NAME -d --region $REGION --platform $EB_PLATFORM --instance_type $EB_INSTANCE_TYPE
 
-    if [ $? -eq 0 ]
-    then
-        echo "Elastic Beanstalk environment creation failed"
-    else
-        echo "Elastic Beanstalk environment creation successful"
-    fi
-
     cd $CURR_DIR
 }
 
@@ -187,7 +180,7 @@ provisionGlobalResources() {
 
 verifyEBCLI() {
     if command -v eb >/dev/null; then
-        echo "Creating Elastic Beanstalk environment ..."
+        echo "Creating Elastic Beanstalk environment. This can take more than 10 min ..."
     else
         echo "Please install the Elastic Beanstalk Command Line Interface first"
         exit 1;
