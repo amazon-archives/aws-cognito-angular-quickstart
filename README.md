@@ -27,7 +27,7 @@ Cognito Quickstart
 * [Install angular-cli](https://github.com/angular/angular-cli)
 
 
-# Getting the code
+# Getting the code and running it locally
 ```
 # Clone it from github
 git clone --depth 1 git@github.com:awslabs/aws-cognito-angular2-quickstart.git
@@ -53,7 +53,9 @@ cd aws
 ./createResources.sh
 ```
 
-# Build and Deploy to Elastic Beanstalk
+Running the above command will create the necessary AWS resources and build & deploy your code to AWS.
+
+# Update, Build and Deploy to Elastic Beanstalk
 ```
 # Commit your changes in order to deploy it to your environment
 git add .
@@ -65,7 +67,7 @@ eb deploy
 eb open
 ```
 
-# Build and Deploy to S3
+# Update, Build and Deploy to S3
 ```
 # Build the project and sync the output with the S3 bucket
 npm run build; cd dist; aws s3 sync . s3://[BUCKET_NAME]/
