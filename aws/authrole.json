@@ -23,7 +23,7 @@
         "dynamodb:DeleteItem"
       ],
       "Resource": [
-        "arn:aws:dynamodb:REGION:ACCOUNT_NUMBER:table/TABLE_NAME"
+        "DDB_TABLE_ARN"
       ],
       "Condition": {
         "ForAllValues:StringEquals": {

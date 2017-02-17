@@ -13,7 +13,6 @@ import {SecureHomeComponent} from "./secure/landing/securehome.component";
 import {JwtComponent} from "./secure/jwttokens/jwt.component";
 import {DynamoDBService} from "./service/ddb.service";
 import {Ng2AutoCompleteModule} from "ng2-auto-complete";
-import {Ng2UploaderModule} from "ng2-uploader";
 import {LoginComponent} from "./public/auth/login/login.component";
 import {RegisterComponent} from "./public/auth/register/registration.component";
 import {ForgotPasswordStep1Component, ForgotPassword2Component} from "./public/auth/forgot/forgotPassword.component";
@@ -44,7 +43,6 @@ import {ResendCodeComponent} from "./public/auth/resend/resendCode.component";
         BrowserModule,
         FormsModule,
         HttpModule,
-        Ng2UploaderModule,
         routing
     ],
     providers: [

@@ -7,6 +7,7 @@ Cognito Quickstart
 # Tech Stack
 ## Required Tools
 * [aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html)
+* [eb cli](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html)
 * [npm](https://www.npmjs.com/)
 * [angular-cli](https://github.com/angular/angular-cli)
 
@@ -21,13 +22,9 @@ Cognito Quickstart
 ##### Install the required tools
 * Create an AWS account
 * Install [npm](https://www.npmjs.com/)
-* Run ```npm install``` at the project's root level
 * [Install or update your aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) 
+* [Install or update your eb cli](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html) 
 * [Install angular-cli](https://github.com/angular/angular-cli)
-
-##### This will install the AWS resources
-* ```cd aws``` 
-* ```./createResources.sh```
 
 
 # Getting the code
@@ -43,19 +40,37 @@ npm install
 # Run the app in dev mode
 npm start
 ```
+# Creating AWS Resources
+This sample application can be deployed to either Elastic Beanstalk or S3. S3 will host this application as a static site
+while Elastic Beanstalk gives you the capability of adding backend operations to the application. 
+
+* [What is Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html)
+* [What is S3](http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html)
+
+```
+# Install the AWS resources and deploy your application to either Elastic Beanstalk or S3
+cd aws
+./createResources.sh
+```
+
+# Build and Deploy to Elastic Beanstalk
+```
+# Commit your changes in order to deploy it to your environment
+git add .
+git commit
+eb deploy
+```
+```
+# View your deployed application in a browser
+eb open
+```
+
+# Build and Deploy to S3
 ```
 # Build the project and sync the output with the S3 bucket
-ng build; cd dist; aws s3 sync . s3://budilov-cognito/
+npm run build; cd dist; aws s3 sync . s3://[BUCKET_NAME]/
 ```
 ```
-# Test it out
-curl –I http://budilov-cognito.s3-website-us-east-1.amazonaws.com/
+# Test your deployed application
+curl –I http://[BUCKET_NAME].s3-website-[REGION].amazonaws.com/
 ```
-
-# Necessary changes
-Modify the following 2 files with your newly-created AWS service ids (Cognito, DDB, etc)
-```
-src/environments/environment.ts
-src/environments/environment.prod.ts
-```
-
