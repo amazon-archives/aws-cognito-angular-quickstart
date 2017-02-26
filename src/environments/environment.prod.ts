@@ -13,3 +13,4 @@ export const environment = {
 
     ddbTableName: 'LoginTrail'
 };
+
