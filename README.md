@@ -48,6 +48,8 @@ while Elastic Beanstalk gives you the capability of adding backend operations to
 * [What is Elastic Beanstalk](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html)
 * [What is S3](http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html)
 
+** createResources.sh requires your [aws cli to be configured](http://docs.aws.amazon.com/cli/latest/userguide/controlling-output.html) for JSON output.  **
+
 ```
 # Install the AWS resources and deploy your application to either Elastic Beanstalk or S3
 cd aws
