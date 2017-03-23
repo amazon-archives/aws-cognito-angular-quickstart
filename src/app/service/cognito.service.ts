@@ -215,7 +215,7 @@ export class UserLoginService {
     }
 
     authenticate(username: string, password: string, callback: CognitoCallback) {
-        console.log("UserLoginService: stgarting the authentication")
+        console.log("UserLoginService: starting the authentication")
         // Need to provide placeholder keys unless unauthorised user access is enabled for user pool
         AWSCognito.config.update({accessKeyId: 'anything', secretAccessKey: 'anything'})
 
