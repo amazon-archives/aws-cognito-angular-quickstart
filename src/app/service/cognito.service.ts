@@ -247,7 +247,14 @@ export class UserLoginService {
 
                 console.log("UserLoginService: set the AWS credentials - " + JSON.stringify(AWS.config.credentials));
                 console.log("UserLoginService: set the AWSCognito credentials - " + JSON.stringify(AWSCognito.config.credentials));
-                callback.cognitoCallback(null, result);
+                AWS.config.credentials.get(function (err) {
+                    if (!err) {
+                        callback.cognitoCallback(null, result);
+                    } else {
+                        callback.cognitoCallback(err.message, null);
+                    }
+                });
+
             },
             onFailure: function (err) {
                 callback.cognitoCallback(err.message, null);
