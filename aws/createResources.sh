@@ -16,7 +16,7 @@ REGION=us-east-2
 EB_INSTANCE_TYPE=t2.small
 EB_PLATFORM=node.js
 CURR_DIR=$( cd $(dirname $0) ; pwd -P )
-ROOT_DIR=$CURR_DIR/..
+ROOT_DIR=$( cd $CURR_DIR; cd ..; pwd -P)
 NPM_DIR=$ROOT_DIR/node_modules/
 
 DDB_TABLE_ARN=""
@@ -133,7 +133,7 @@ createS3Bucket() {
 
     if [ $status -eq 0 ]
     then
-        echo "S3 bucket successfully created"
+        echo "S3 bucket successfully created. Uploading files to S3."
         uploadS3Bucket
     else
         if grep "BucketAlreadyOwnedByYou" /tmp/s3-mb-status > /dev/null
@@ -152,15 +152,19 @@ createS3Bucket() {
 
 uploadS3Bucket() {
     # Add the ‘website’ configuration and bucket policy
-    aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html
+    aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html  --region $REGION
     cat s3-bucket-policy.json | sed 's/BUCKET_NAME/'$BUCKET_NAME'/' > /tmp/s3-bucket-policy.json
-    aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/s3-bucket-policy.json
+    aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/s3-bucket-policy.json  --region $REGION
     #Build the project and sync it up to the bucket
     if [ ! -d "$NPM_DIR" ]; then
         npm install
     fi
-    ng build --prod ../
-    aws s3 sync $ROOT_DIR/dist/ s3://$BUCKET_NAME/
+    cd ..
+    echo "Building the project"
+    ng build
+    cd -
+    echo "Syncing files to the S3 bucket from " $ROOT_DIR/dist/
+    aws s3 sync $ROOT_DIR/dist/ s3://$BUCKET_NAME/  --region $REGION
 }
 
 printConfig() {
