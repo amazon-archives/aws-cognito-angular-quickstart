@@ -2,6 +2,7 @@ import {Injectable, Inject} from "@angular/core";
 import {DynamoDBService} from "./ddb.service";
 import {RegistrationUser} from "../public/auth/register/registration.component";
 import {environment} from "../../environments/environment";
+import {NewPasswordUser} from "../public/auth/newpassword/newpassword.component";
 
 /**
  * Created by Vladimir Budilov
@@ -206,6 +207,49 @@ export class UserRegistrationService {
         });
     }
 
+    newPassword(newPasswordUser: NewPasswordUser, callback: CognitoCallback): void {
+      console.log(newPasswordUser);
+      // Get these details and call
+      //cognitoUser.completeNewPasswordChallenge(newPassword, userAttributes, this);
+      let authenticationData = {
+          Username: newPasswordUser.username,
+          Password: newPasswordUser.existingPassword,
+      };
+      let authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData);
+
+      let userData = {
+          Username: newPasswordUser.username,
+          Pool: this.cognitoUtil.getUserPool()
+      };
+
+      console.log("UserLoginService: Params set...Authenticating the user");
+      let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+      console.log("UserLoginService: config is " + AWS.config);
+      cognitoUser.authenticateUser(authenticationDetails, {
+          newPasswordRequired: function(userAttributes, requiredAttributes) {
+            // User was signed up by an admin and must provide new
+            // password and required attributes, if any, to complete
+            // authentication.
+
+            // the api doesn't accept this field back
+            delete userAttributes.email_verified;
+            cognitoUser.completeNewPasswordChallenge(newPasswordUser.password, requiredAttributes, {
+              onSuccess: function (result) {
+                callback.cognitoCallback(null, userAttributes);
+              },
+              onFailure: function (err) {
+                callback.cognitoCallback(err, null);
+              }
+            });
+          },
+          onSuccess: function (result) {
+            callback.cognitoCallback(null, result);
+          },
+          onFailure: function (err) {
+            callback.cognitoCallback(err, null);
+          }
+        });
+    }
 }
 
 @Injectable()
@@ -234,6 +278,9 @@ export class UserLoginService {
         let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
         console.log("UserLoginService: config is " + AWS.config);
         cognitoUser.authenticateUser(authenticationDetails, {
+            newPasswordRequired: function(userAttributes, requiredAttributes) {
+              callback.cognitoCallback(`User needs to set password.`, null);
+            },
             onSuccess: function (result) {
 
                 var logins = {}
