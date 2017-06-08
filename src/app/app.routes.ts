@@ -11,6 +11,7 @@ import {RegisterComponent} from "./public/auth/register/registration.component";
 import {ForgotPassword2Component, ForgotPasswordStep1Component} from "./public/auth/forgot/forgotPassword.component";
 import {RegistrationConfirmationComponent, LogoutComponent} from "./public/auth/confirm/confirmRegistration.component";
 import {ResendCodeComponent} from "./public/auth/resend/resendCode.component";
+import {NewPasswordComponent} from "./public/auth/newpassword/newpassword.component";
 
 const homeRoutes: Routes = [
     {
@@ -29,6 +30,7 @@ const homeRoutes: Routes = [
             {path: 'resendCode', component: ResendCodeComponent},
             {path: 'forgotPassword/:email', component: ForgotPassword2Component},
             {path: 'forgotPassword', component: ForgotPasswordStep1Component},
+            {path: 'newPassword', component: NewPasswordComponent},
             {path: '', component: HomeLandingComponent}
         ]
     },
