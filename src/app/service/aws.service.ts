@@ -7,9 +7,7 @@ import * as CognitoIdentity from "aws-sdk/clients/cognitoidentity";
  * Created by Vladimir Budilov
  */
 
-
-// declare var AWS: any;
-declare var AMA: any;
+// declare var AMA: any;
 
 @Injectable()
 export class AwsUtil {
@@ -97,8 +95,9 @@ export class AwsUtil {
                 appTitle: "aws-cognito-angular2-quickstart"
             };
 
-            var mobileAnalyticsClient = new AMA.Manager(options);
-            mobileAnalyticsClient.submitEvents();
+            // TODO: The mobile Analytics client needs some work to handle Typescript. Disabling for the time being.
+            // var mobileAnalyticsClient = new AMA.Manager(options);
+            // mobileAnalyticsClient.submitEvents();
 
             this.addCognitoCredentials(idToken);
 
