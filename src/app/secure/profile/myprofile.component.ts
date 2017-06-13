@@ -1,5 +1,7 @@
 import {Component} from "@angular/core";
-import {LoggedInCallback, UserLoginService, UserParametersService, Callback} from "../../service/cognito.service";
+import {UserLoginService} from "../../service/user-login.service";
+import {LoggedInCallback, Callback} from "../../service/cognito.service";
+import {UserParametersService} from "../../service/user-parameters.service";
 import {Router} from "@angular/router";
 import {AwsUtil} from "../../service/aws.service"
 

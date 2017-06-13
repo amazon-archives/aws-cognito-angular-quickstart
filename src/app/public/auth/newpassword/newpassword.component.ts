@@ -1,6 +1,8 @@
 import {Component} from "@angular/core";
 import {Router} from "@angular/router";
-import {UserRegistrationService, UserLoginService, CognitoCallback} from "../../../service/cognito.service";
+import {UserRegistrationService} from "../../../service/user-registration.service";
+import {UserLoginService} from "../../../service/user-login.service";
+import {CognitoCallback} from "../../../service/cognito.service";
 
 export class NewPasswordUser {
     username: string;

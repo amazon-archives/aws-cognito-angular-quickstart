@@ -7,7 +7,8 @@
  */
 import {Component, OnInit} from "@angular/core";
 import {AwsUtil} from "./service/aws.service";
-import {UserLoginService, CognitoUtil, LoggedInCallback} from "./service/cognito.service";
+import {UserLoginService} from "./service/user-login.service";
+import {CognitoUtil, LoggedInCallback} from "./service/cognito.service";
 
 @Component({
     selector: 'app-root',
