@@ -1,5 +1,7 @@
 import {environment} from "../../environments/environment";
+import { AwsUtil } from "./aws.service";
 import * as AWS from "aws-sdk/global";
+import * as S3 from "aws-sdk/clients/s3";
 
 /**
  * Created by Vladimir Budilov
@@ -8,7 +10,7 @@ import * as AWS from "aws-sdk/global";
 
 export class S3Service {
 
-    constructor() {
+    constructor(public awsUtil:AwsUtil) {
 
     }
 
@@ -17,7 +19,7 @@ export class S3Service {
             region: environment.bucketRegion,
         });
 
-        var s3 = new AWS.S3({
+        var s3 = new S3({
             region: environment.bucketRegion,
             apiVersion: '2006-03-01',
             params: {Bucket: environment.rekognitionBucket}
@@ -32,7 +34,7 @@ export class S3Service {
             return;
         }
         let fileName = selectedFile.name;
-        let albumPhotosKey = environment.albumName + '/' + AWS.config.credentials.identityId + "/";
+        let albumPhotosKey = environment.albumName + '/' + this.awsUtil.getCognitoCreds().identityId + "/";
         let photoKey = albumPhotosKey + fileName;
 
         this.getS3().upload({
