@@ -1,5 +1,5 @@
-import {Injectable, Inject, forwardRef} from "@angular/core";
-import { AwsUtil } from "./aws.service";
+import {Injectable, Inject} from "@angular/core";
+import {CognitoUtil} from "./cognito.service";
 import {environment} from "../../environments/environment";
 
 import {Stuff} from "../secure/useractivity/useractivity.component";
@@ -15,7 +15,7 @@ import * as DynamoDB from "aws-sdk/clients/dynamodb";
 @Injectable()
 export class DynamoDBService {
 
-    constructor(@Inject(forwardRef(() =>AwsUtil)) public awsUtil:AwsUtil) {
+    constructor(public cognitoUtil:CognitoUtil) {
         console.log("DynamoDBService: constructor");
     }
 
@@ -29,7 +29,7 @@ export class DynamoDBService {
             TableName: environment.ddbTableName,
             KeyConditionExpression: "userId = :userId",
             ExpressionAttributeValues: {
-                ":userId": this.awsUtil.getCognitoCreds().identityId
+                ":userId": this.cognitoUtil.getCognitoIdentity()
             }
         };
 
@@ -52,8 +52,8 @@ export class DynamoDBService {
     writeLogEntry(type: string) {
         try {
             let date = new Date().toString();
-            console.log("DynamoDBService: Writing log entry. Type:" + type + " ID: " + this.awsUtil.getCognitoCreds().identityId + " Date: " + date);
-            this.write(this.awsUtil.getCognitoCreds().identityId, date, type);
+            console.log("DynamoDBService: Writing log entry. Type:" + type + " ID: " + this.cognitoUtil.getCognitoIdentity() + " Date: " + date);
+            this.write(this.cognitoUtil.getCognitoIdentity(), date, type);
         } catch (exc) {
             console.log("DynamoDBService: Couldn't write to DDB");
         }

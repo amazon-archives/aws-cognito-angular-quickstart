@@ -3,7 +3,7 @@ import {UserLoginService} from "../../service/user-login.service";
 import {LoggedInCallback, Callback} from "../../service/cognito.service";
 import {UserParametersService} from "../../service/user-parameters.service";
 import {Router} from "@angular/router";
-import {AwsUtil} from "../../service/aws.service"
+import {CognitoUtil} from "../../service/cognito.service"
 
 
 @Component({
@@ -15,7 +15,7 @@ export class MyProfileComponent implements LoggedInCallback {
     public parameters: Array<Parameters> = [];
     public cognitoId: String;
 
-    constructor(public router: Router, public userService: UserLoginService, public userParams: UserParametersService, public awsUtil: AwsUtil) {
+    constructor(public router: Router, public userService: UserLoginService, public userParams: UserParametersService, public cognitoUtil: CognitoUtil) {
         this.userService.isAuthenticated(this);
         console.log("In MyProfileComponent");
     }
@@ -24,7 +24,7 @@ export class MyProfileComponent implements LoggedInCallback {
         if (!isLoggedIn) {
             this.router.navigate(['/home/login']);
         } else {
-            this.userParams.getParameters(new GetParametersCallback(this, this.awsUtil));
+            this.userParams.getParameters(new GetParametersCallback(this, this.cognitoUtil));
         }
     }
 }
@@ -36,7 +36,7 @@ export class Parameters {
 
 export class GetParametersCallback implements Callback {
 
-    constructor(public me: MyProfileComponent, public awsUtil: AwsUtil) {
+    constructor(public me: MyProfileComponent, public cognitoUtil: CognitoUtil) {
 
     }
 
@@ -54,7 +54,7 @@ export class GetParametersCallback implements Callback {
         }
         let param = new Parameters()
         param.name = "cognito ID";
-        param.value = this.awsUtil.getCognitoCreds().identityId;
+        param.value = this.cognitoUtil.getCognitoIdentity();
         this.me.parameters.push(param)
     }
 }

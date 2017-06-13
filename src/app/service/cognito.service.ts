@@ -6,6 +6,7 @@ import {NewPasswordUser} from "../public/auth/newpassword/newpassword.component"
 import { CognitoUserPool, CognitoUserAttribute, CognitoUser, 
          CognitoIdentityServiceProvider, AuthenticationDetails } from "amazon-cognito-identity-js";
 import * as AWS from "aws-sdk/global";
+import * as CognitoIdentity from "aws-sdk/clients/cognitoidentity";
 
 
 /**
@@ -39,6 +40,8 @@ export class CognitoUtil {
         ClientId: CognitoUtil._CLIENT_ID
     };
 
+    public cognitoCreds:AWS.CognitoIdentityCredentials;
+
     getUserPool() {
         return new CognitoUserPool(CognitoUtil._POOL_DATA);
     }
@@ -47,9 +50,39 @@ export class CognitoUtil {
         return this.getUserPool().getCurrentUser();
     }
 
+    // AWS Stores Credentials in many ways, and with TypeScript this means that 
+    // getting the base credentials we authenticated with from the AWS globals gets really murky,
+    // having to get around both class extension and unions. Therefore, we're going to give
+    // developers direct access to the raw, unadulterated CognitoIdentityCredentials
+    // object at all times.
+    setCognitoCreds(creds:AWS.CognitoIdentityCredentials) {
+        this.cognitoCreds = creds;
+    }
+
+    getCognitoCreds(){
+        return this.cognitoCreds;
+    }
+
+    // This method takes in a raw jwtToken and uses the global AWS config options to build a
+    // CognitoIdentityCredentials object and store it for us. It also returns the object to the caller
+    // to avoid unnecessary calls to setCognitoCreds.
+
+    buildCognitoCreds(idTokenJwt:string) {
+        let url = 'cognito-idp.' + CognitoUtil._REGION.toLowerCase() + '.amazonaws.com/' + CognitoUtil._USER_POOL_ID;
+        let logins:CognitoIdentity.LoginsMap = {};
+        logins[url] = idTokenJwt;
+        let params = {
+            IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID, /* required */
+            Logins: logins
+        };
+        let creds = new AWS.CognitoIdentityCredentials(params);
+        this.setCognitoCreds(creds);
+        return creds;
+    }
+
 
     getCognitoIdentity(): string {
-        return (<AWS.CognitoIdentityCredentials>AWS.config.credentials).identityId;
+        return this.cognitoCreds.identityId;
     }
 
     getAccessToken(callback: Callback): void {
