@@ -3,14 +3,14 @@ import {DynamoDBService} from "./ddb.service";
 import {RegistrationUser} from "../public/auth/register/registration.component";
 import {environment} from "../../environments/environment";
 import {NewPasswordUser} from "../public/auth/newpassword/newpassword.component";
+import { CognitoUserPool, CognitoUserAttribute, CognitoUser, 
+         CognitoIdentityServiceProvider, AuthenticationDetails } from "amazon-cognito-identity-js";
 import * as AWS from "aws-sdk/global";
+
 
 /**
  * Created by Vladimir Budilov
  */
-
-
-declare var AWSCognito: any;
 
 export interface CognitoCallback {
     cognitoCallback(message: string, result: any): void;
@@ -39,13 +39,8 @@ export class CognitoUtil {
         ClientId: CognitoUtil._CLIENT_ID
     };
 
-
-    public static getAwsCognito(): any {
-        return AWSCognito
-    }
-
     getUserPool() {
-        return new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(CognitoUtil._POOL_DATA);
+        return new CognitoUserPool(CognitoUtil._POOL_DATA);
     }
 
     getCurrentUser() {
@@ -158,8 +153,8 @@ export class UserRegistrationService {
             Name: 'nickname',
             Value: user.name
         };
-        attributeList.push(new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataEmail));
-        attributeList.push(new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataNickname));
+        attributeList.push(new CognitoUserAttribute(dataEmail));
+        attributeList.push(new CognitoUserAttribute(dataNickname));
 
         this.cognitoUtil.getUserPool().signUp(user.email, user.password, attributeList, null, function (err, result) {
             if (err) {
@@ -179,7 +174,7 @@ export class UserRegistrationService {
             Pool: this.cognitoUtil.getUserPool()
         };
 
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+        let cognitoUser = new CognitoUser(userData);
 
         cognitoUser.confirmRegistration(confirmationCode, true, function (err, result) {
             if (err) {
@@ -196,7 +191,7 @@ export class UserRegistrationService {
             Pool: this.cognitoUtil.getUserPool()
         };
 
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+        let cognitoUser = new CognitoUser(userData);
 
         cognitoUser.resendConfirmationCode(function (err, result) {
             if (err) {
@@ -215,7 +210,7 @@ export class UserRegistrationService {
           Username: newPasswordUser.username,
           Password: newPasswordUser.existingPassword,
       };
-      let authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData);
+      let authenticationDetails = new AuthenticationDetails(authenticationData);
 
       let userData = {
           Username: newPasswordUser.username,
@@ -223,7 +218,7 @@ export class UserRegistrationService {
       };
 
       console.log("UserLoginService: Params set...Authenticating the user");
-      let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+      let cognitoUser = new CognitoUser(userData);
       console.log("UserLoginService: config is " + AWS.config);
       cognitoUser.authenticateUser(authenticationDetails, {
           newPasswordRequired: function(userAttributes, requiredAttributes) {
@@ -260,14 +255,12 @@ export class UserLoginService {
 
     authenticate(username: string, password: string, callback: CognitoCallback) {
         console.log("UserLoginService: starting the authentication")
-        // Need to provide placeholder keys unless unauthorised user access is enabled for user pool
-        AWSCognito.config.update({accessKeyId: 'anything', secretAccessKey: 'anything'})
 
         let authenticationData = {
             Username: username,
             Password: password,
         };
-        let authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData);
+        let authenticationDetails = new AuthenticationDetails(authenticationData);
 
         let userData = {
             Username: username,
@@ -275,7 +268,7 @@ export class UserLoginService {
         };
 
         console.log("UserLoginService: Params set...Authenticating the user");
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+        let cognitoUser = new CognitoUser(userData);
         console.log("UserLoginService: config is " + AWS.config);
         cognitoUser.authenticateUser(authenticationDetails, {
             newPasswordRequired: function(userAttributes, requiredAttributes) {
@@ -293,7 +286,6 @@ export class UserLoginService {
                 });
 
                 console.log("UserLoginService: set the AWS credentials - " + JSON.stringify(AWS.config.credentials));
-                console.log("UserLoginService: set the AWSCognito credentials - " + JSON.stringify(AWSCognito.config.credentials));
 
                 callback.cognitoCallback(null, result);
 
@@ -310,10 +302,10 @@ export class UserLoginService {
             Pool: this.cognitoUtil.getUserPool()
         };
 
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+        let cognitoUser = new CognitoUser(userData);
 
         cognitoUser.forgotPassword({
-            onSuccess: function (result) {
+            onSuccess: function () {
 
             },
             onFailure: function (err) {
@@ -331,11 +323,11 @@ export class UserLoginService {
             Pool: this.cognitoUtil.getUserPool()
         };
 
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
+        let cognitoUser = new CognitoUser(userData);
 
         cognitoUser.confirmPassword(verificationCode, password, {
-            onSuccess: function (result) {
-                callback.cognitoCallback(null, result);
+            onSuccess: function () {
+                callback.cognitoCallback(null, null);
             },
             onFailure: function (err) {
                 callback.cognitoCallback(err.message, null);
