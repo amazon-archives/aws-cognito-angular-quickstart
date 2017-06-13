@@ -1,10 +1,10 @@
 import {environment} from "../../environments/environment";
+import * as AWS from "aws-sdk/global";
 
 /**
  * Created by Vladimir Budilov
  */
 
-declare var AWS: any;
 
 export class S3Service {
 
