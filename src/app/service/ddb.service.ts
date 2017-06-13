@@ -12,9 +12,6 @@ import * as DynamoDB from "aws-sdk/clients/dynamodb";
  * Created by Vladimir Budilov
  */
 
-
-declare var AWSCognito: any;
-
 @Injectable()
 export class DynamoDBService {
 
