@@ -1,5 +1,5 @@
 import {environment} from "../../environments/environment";
-import { AwsUtil } from "./aws.service";
+import { CognitoUtil } from "./cognito.service";
 import * as AWS from "aws-sdk/global";
 import * as S3 from "aws-sdk/clients/s3";
 
@@ -10,7 +10,7 @@ import * as S3 from "aws-sdk/clients/s3";
 
 export class S3Service {
 
-    constructor(public awsUtil:AwsUtil) {
+    constructor(public cognitoUtil:CognitoUtil) {
 
     }
 
@@ -34,7 +34,7 @@ export class S3Service {
             return;
         }
         let fileName = selectedFile.name;
-        let albumPhotosKey = environment.albumName + '/' + this.awsUtil.getCognitoCreds().identityId + "/";
+        let albumPhotosKey = environment.albumName + '/' + this.cognitoUtil.getCognitoIdentity() + "/";
         let photoKey = albumPhotosKey + fileName;
 
         this.getS3().upload({
