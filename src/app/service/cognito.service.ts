@@ -3,14 +3,15 @@ import {DynamoDBService} from "./ddb.service";
 import {RegistrationUser} from "../public/auth/register/registration.component";
 import {environment} from "../../environments/environment";
 import {NewPasswordUser} from "../public/auth/newpassword/newpassword.component";
+import { CognitoUserPool, CognitoUserAttribute, CognitoUser, 
+         CognitoIdentityServiceProvider, AuthenticationDetails } from "amazon-cognito-identity-js";
+import * as AWS from "aws-sdk/global";
+import * as CognitoIdentity from "aws-sdk/clients/cognitoidentity";
+
 
 /**
  * Created by Vladimir Budilov
  */
-
-
-declare var AWSCognito: any;
-declare var AWS: any;
 
 export interface CognitoCallback {
     cognitoCallback(message: string, result: any): void;
@@ -39,22 +40,49 @@ export class CognitoUtil {
         ClientId: CognitoUtil._CLIENT_ID
     };
 
-
-    public static getAwsCognito(): any {
-        return AWSCognito
-    }
+    public cognitoCreds:AWS.CognitoIdentityCredentials;
 
     getUserPool() {
-        return new AWSCognito.CognitoIdentityServiceProvider.CognitoUserPool(CognitoUtil._POOL_DATA);
+        return new CognitoUserPool(CognitoUtil._POOL_DATA);
     }
 
     getCurrentUser() {
         return this.getUserPool().getCurrentUser();
     }
 
+    // AWS Stores Credentials in many ways, and with TypeScript this means that 
+    // getting the base credentials we authenticated with from the AWS globals gets really murky,
+    // having to get around both class extension and unions. Therefore, we're going to give
+    // developers direct access to the raw, unadulterated CognitoIdentityCredentials
+    // object at all times.
+    setCognitoCreds(creds:AWS.CognitoIdentityCredentials) {
+        this.cognitoCreds = creds;
+    }
+
+    getCognitoCreds(){
+        return this.cognitoCreds;
+    }
+
+    // This method takes in a raw jwtToken and uses the global AWS config options to build a
+    // CognitoIdentityCredentials object and store it for us. It also returns the object to the caller
+    // to avoid unnecessary calls to setCognitoCreds.
+
+    buildCognitoCreds(idTokenJwt:string) {
+        let url = 'cognito-idp.' + CognitoUtil._REGION.toLowerCase() + '.amazonaws.com/' + CognitoUtil._USER_POOL_ID;
+        let logins:CognitoIdentity.LoginsMap = {};
+        logins[url] = idTokenJwt;
+        let params = {
+            IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID, /* required */
+            Logins: logins
+        };
+        let creds = new AWS.CognitoIdentityCredentials(params);
+        this.setCognitoCreds(creds);
+        return creds;
+    }
+
 
     getCognitoIdentity(): string {
-        return AWS.config.credentials.identityId;
+        return this.cognitoCreds.identityId;
     }
 
     getAccessToken(callback: Callback): void {
@@ -135,279 +163,5 @@ export class CognitoUtil {
                 }
             }
         });
-    }
-}
-
-@Injectable()
-export class UserRegistrationService {
-
-    constructor(@Inject(CognitoUtil) public cognitoUtil: CognitoUtil) {
-
-    }
-
-    register(user: RegistrationUser, callback: CognitoCallback): void {
-        console.log("UserRegistrationService: user is " + user);
-
-        let attributeList = [];
-
-        let dataEmail = {
-            Name: 'email',
-            Value: user.email
-        };
-        let dataNickname = {
-            Name: 'nickname',
-            Value: user.name
-        };
-        attributeList.push(new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataEmail));
-        attributeList.push(new AWSCognito.CognitoIdentityServiceProvider.CognitoUserAttribute(dataNickname));
-
-        this.cognitoUtil.getUserPool().signUp(user.email, user.password, attributeList, null, function (err, result) {
-            if (err) {
-                callback.cognitoCallback(err.message, null);
-            } else {
-                console.log("UserRegistrationService: registered user is " + result);
-                callback.cognitoCallback(null, result);
-            }
-        });
-
-    }
-
-    confirmRegistration(username: string, confirmationCode: string, callback: CognitoCallback): void {
-
-        let userData = {
-            Username: username,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
-        cognitoUser.confirmRegistration(confirmationCode, true, function (err, result) {
-            if (err) {
-                callback.cognitoCallback(err.message, null);
-            } else {
-                callback.cognitoCallback(null, result);
-            }
-        });
-    }
-
-    resendCode(username: string, callback: CognitoCallback): void {
-        let userData = {
-            Username: username,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
-        cognitoUser.resendConfirmationCode(function (err, result) {
-            if (err) {
-                callback.cognitoCallback(err.message, null);
-            } else {
-                callback.cognitoCallback(null, result);
-            }
-        });
-    }
-
-    newPassword(newPasswordUser: NewPasswordUser, callback: CognitoCallback): void {
-      console.log(newPasswordUser);
-      // Get these details and call
-      //cognitoUser.completeNewPasswordChallenge(newPassword, userAttributes, this);
-      let authenticationData = {
-          Username: newPasswordUser.username,
-          Password: newPasswordUser.existingPassword,
-      };
-      let authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData);
-
-      let userData = {
-          Username: newPasswordUser.username,
-          Pool: this.cognitoUtil.getUserPool()
-      };
-
-      console.log("UserLoginService: Params set...Authenticating the user");
-      let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-      console.log("UserLoginService: config is " + AWS.config);
-      cognitoUser.authenticateUser(authenticationDetails, {
-          newPasswordRequired: function(userAttributes, requiredAttributes) {
-            // User was signed up by an admin and must provide new
-            // password and required attributes, if any, to complete
-            // authentication.
-
-            // the api doesn't accept this field back
-            delete userAttributes.email_verified;
-            cognitoUser.completeNewPasswordChallenge(newPasswordUser.password, requiredAttributes, {
-              onSuccess: function (result) {
-                callback.cognitoCallback(null, userAttributes);
-              },
-              onFailure: function (err) {
-                callback.cognitoCallback(err, null);
-              }
-            });
-          },
-          onSuccess: function (result) {
-            callback.cognitoCallback(null, result);
-          },
-          onFailure: function (err) {
-            callback.cognitoCallback(err, null);
-          }
-        });
-    }
-}
-
-@Injectable()
-export class UserLoginService {
-
-    constructor(public ddb: DynamoDBService, public cognitoUtil: CognitoUtil) {
-    }
-
-    authenticate(username: string, password: string, callback: CognitoCallback) {
-        console.log("UserLoginService: starting the authentication")
-        // Need to provide placeholder keys unless unauthorised user access is enabled for user pool
-        AWSCognito.config.update({accessKeyId: 'anything', secretAccessKey: 'anything'})
-
-        let authenticationData = {
-            Username: username,
-            Password: password,
-        };
-        let authenticationDetails = new AWSCognito.CognitoIdentityServiceProvider.AuthenticationDetails(authenticationData);
-
-        let userData = {
-            Username: username,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        console.log("UserLoginService: Params set...Authenticating the user");
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-        console.log("UserLoginService: config is " + AWS.config);
-        cognitoUser.authenticateUser(authenticationDetails, {
-            newPasswordRequired: function(userAttributes, requiredAttributes) {
-              callback.cognitoCallback(`User needs to set password.`, null);
-            },
-            onSuccess: function (result) {
-
-                var logins = {}
-                logins['cognito-idp.' + CognitoUtil._REGION + '.amazonaws.com/' + CognitoUtil._USER_POOL_ID] = result.getIdToken().getJwtToken();
-
-                // Add the User's Id Token to the Cognito credentials login map.
-                AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                    IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID,
-                    Logins: logins
-                });
-
-                console.log("UserLoginService: set the AWS credentials - " + JSON.stringify(AWS.config.credentials));
-                console.log("UserLoginService: set the AWSCognito credentials - " + JSON.stringify(AWSCognito.config.credentials));
-                AWS.config.credentials.get(function (err) {
-                    if (!err) {
-                        callback.cognitoCallback(null, result);
-                    } else {
-                        callback.cognitoCallback(err.message, null);
-                    }
-                });
-
-            },
-            onFailure: function (err) {
-                callback.cognitoCallback(err.message, null);
-            },
-        });
-    }
-
-    forgotPassword(username: string, callback: CognitoCallback) {
-        let userData = {
-            Username: username,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
-        cognitoUser.forgotPassword({
-            onSuccess: function (result) {
-
-            },
-            onFailure: function (err) {
-                callback.cognitoCallback(err.message, null);
-            },
-            inputVerificationCode() {
-                callback.cognitoCallback(null, null);
-            }
-        });
-    }
-
-    confirmNewPassword(email: string, verificationCode: string, password: string, callback: CognitoCallback) {
-        let userData = {
-            Username: email,
-            Pool: this.cognitoUtil.getUserPool()
-        };
-
-        let cognitoUser = new AWSCognito.CognitoIdentityServiceProvider.CognitoUser(userData);
-
-        cognitoUser.confirmPassword(verificationCode, password, {
-            onSuccess: function (result) {
-                callback.cognitoCallback(null, result);
-            },
-            onFailure: function (err) {
-                callback.cognitoCallback(err.message, null);
-            }
-        });
-    }
-
-    logout() {
-        console.log("UserLoginService: Logging out");
-        this.ddb.writeLogEntry("logout");
-        this.cognitoUtil.getCurrentUser().signOut();
-
-    }
-
-    isAuthenticated(callback: LoggedInCallback) {
-        if (callback == null)
-            throw("UserLoginService: Callback in isAuthenticated() cannot be null");
-
-        let cognitoUser = this.cognitoUtil.getCurrentUser();
-
-        if (cognitoUser != null) {
-            cognitoUser.getSession(function (err, session) {
-                if (err) {
-                    console.log("UserLoginService: Couldn't get the session: " + err, err.stack);
-                    callback.isLoggedIn(err, false);
-                }
-                else {
-                    console.log("UserLoginService: Session is " + session.isValid());
-                    callback.isLoggedIn(err, session.isValid());
-                }
-            });
-        } else {
-            console.log("UserLoginService: can't retrieve the current user");
-            callback.isLoggedIn("Can't retrieve the CurrentUser", false);
-        }
-    }
-
-}
-
-@Injectable()
-export class UserParametersService {
-
-    constructor(public cognitoUtil: CognitoUtil) {
-    }
-
-    getParameters(callback: Callback) {
-        let cognitoUser = this.cognitoUtil.getCurrentUser();
-
-        if (cognitoUser != null) {
-            cognitoUser.getSession(function (err, session) {
-                if (err)
-                    console.log("UserParametersService: Couldn't retrieve the user");
-                else {
-                    cognitoUser.getUserAttributes(function (err, result) {
-                        if (err) {
-                            console.log("UserParametersService: in getParameters: " + err);
-                        } else {
-                            callback.callbackWithParam(result);
-                        }
-                    });
-                }
-
-            });
-        } else {
-            callback.callbackWithParam(null);
-        }
-
-
     }
 }

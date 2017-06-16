@@ -1,5 +1,6 @@
 import {Component} from "@angular/core";
-import {LoggedInCallback, UserLoginService} from "../../service/cognito.service";
+import {UserLoginService} from "../../service/user-login.service";
+import {LoggedInCallback} from "../../service/cognito.service";
 import {Router} from "@angular/router";
 import {DynamoDBService} from "../../service/ddb.service";
 

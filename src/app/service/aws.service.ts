@@ -1,20 +1,19 @@
 import {Injectable} from "@angular/core";
 import {CognitoUtil, Callback} from "./cognito.service";
+import * as AWS from "aws-sdk/global";
 
 /**
  * Created by Vladimir Budilov
  */
 
-
-declare var AWS: any;
-declare var AMA: any;
+// declare var AMA: any;
 
 @Injectable()
 export class AwsUtil {
     public static firstLogin: boolean = false;
     public static runningInit: boolean = false;
 
-    constructor() {
+    constructor(public cognitoUtil: CognitoUtil) {
         AWS.config.region = CognitoUtil._REGION;
     }
 
@@ -63,8 +62,9 @@ export class AwsUtil {
                 appTitle: "aws-cognito-angular2-quickstart"
             };
 
-            var mobileAnalyticsClient = new AMA.Manager(options);
-            mobileAnalyticsClient.submitEvents();
+            // TODO: The mobile Analytics client needs some work to handle Typescript. Disabling for the time being.
+            // var mobileAnalyticsClient = new AMA.Manager(options);
+            // mobileAnalyticsClient.submitEvents();
 
             this.addCognitoCredentials(idToken);
 
@@ -84,13 +84,12 @@ export class AwsUtil {
     }
 
     addCognitoCredentials(idTokenJwt: string): void {
-        let params = AwsUtil.getCognitoParametersForIdConsolidation(idTokenJwt);
+        let creds = this.cognitoUtil.buildCognitoCreds(idTokenJwt);
 
-        AWS.config.credentials = new AWS.CognitoIdentityCredentials(params);
+        AWS.config.credentials = creds;
 
-        AWS.config.credentials.get(function (err) {
+        creds.get(function (err) {
             if (!err) {
-                // var id = AWS.config.credentials.identityId;
                 if (AwsUtil.firstLogin) {
                     // save the login info to DDB
                     this.ddb.writeLogEntry("login");

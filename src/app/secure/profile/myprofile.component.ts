@@ -1,8 +1,11 @@
 import {Component} from "@angular/core";
-import {LoggedInCallback, UserLoginService, UserParametersService, Callback} from "../../service/cognito.service";
+import {UserLoginService} from "../../service/user-login.service";
+import {LoggedInCallback, Callback} from "../../service/cognito.service";
+import {UserParametersService} from "../../service/user-parameters.service";
 import {Router} from "@angular/router";
+import {CognitoUtil} from "../../service/cognito.service"
 
-declare var AWS: any;
+
 @Component({
     selector: 'awscognito-angular2-app',
     templateUrl: './myprofile.html'
@@ -12,7 +15,7 @@ export class MyProfileComponent implements LoggedInCallback {
     public parameters: Array<Parameters> = [];
     public cognitoId: String;
 
-    constructor(public router: Router, public userService: UserLoginService, public userParams: UserParametersService) {
+    constructor(public router: Router, public userService: UserLoginService, public userParams: UserParametersService, public cognitoUtil: CognitoUtil) {
         this.userService.isAuthenticated(this);
         console.log("In MyProfileComponent");
     }
@@ -21,7 +24,7 @@ export class MyProfileComponent implements LoggedInCallback {
         if (!isLoggedIn) {
             this.router.navigate(['/home/login']);
         } else {
-            this.userParams.getParameters(new GetParametersCallback(this));
+            this.userParams.getParameters(new GetParametersCallback(this, this.cognitoUtil));
         }
     }
 }
@@ -33,7 +36,7 @@ export class Parameters {
 
 export class GetParametersCallback implements Callback {
 
-    constructor(public me: MyProfileComponent) {
+    constructor(public me: MyProfileComponent, public cognitoUtil: CognitoUtil) {
 
     }
 
@@ -51,7 +54,7 @@ export class GetParametersCallback implements Callback {
         }
         let param = new Parameters()
         param.name = "cognito ID";
-        param.value = AWS.config.credentials.params.IdentityId;
+        param.value = this.cognitoUtil.getCognitoIdentity();
         this.me.parameters.push(param)
     }
 }
