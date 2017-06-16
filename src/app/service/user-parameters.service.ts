@@ -1,5 +1,5 @@
-import {Injectable, Inject} from "@angular/core";
-import {CognitoUtil, Callback} from "./cognito.service";
+import {Injectable} from "@angular/core";
+import {Callback, CognitoUtil} from "./cognito.service";
 
 @Injectable()
 export class UserParametersService {

@@ -1,5 +1,5 @@
-import {Component, OnInit, OnDestroy} from "@angular/core";
-import {Router, ActivatedRoute} from "@angular/router";
+import {Component, OnDestroy, OnInit} from "@angular/core";
+import {ActivatedRoute, Router} from "@angular/router";
 import {UserLoginService} from "../../../service/user-login.service";
 import {CognitoCallback} from "../../../service/cognito.service";
 

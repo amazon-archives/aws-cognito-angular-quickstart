@@ -1,10 +1,12 @@
-import {Injectable, Inject} from "@angular/core";
-import {DynamoDBService} from "./ddb.service";
-import {RegistrationUser} from "../public/auth/register/registration.component";
+import {Injectable} from "@angular/core";
 import {environment} from "../../environments/environment";
-import {NewPasswordUser} from "../public/auth/newpassword/newpassword.component";
-import { CognitoUserPool, CognitoUserAttribute, CognitoUser, 
-         CognitoIdentityServiceProvider, AuthenticationDetails } from "amazon-cognito-identity-js";
+import {
+    AuthenticationDetails,
+    CognitoIdentityServiceProvider,
+    CognitoUser,
+    CognitoUserAttribute,
+    CognitoUserPool
+} from "amazon-cognito-identity-js";
 import * as AWS from "aws-sdk/global";
 import * as CognitoIdentity from "aws-sdk/clients/cognitoidentity";
 
@@ -40,7 +42,7 @@ export class CognitoUtil {
         ClientId: CognitoUtil._CLIENT_ID
     };
 
-    public cognitoCreds:AWS.CognitoIdentityCredentials;
+    public cognitoCreds: AWS.CognitoIdentityCredentials;
 
     getUserPool() {
         return new CognitoUserPool(CognitoUtil._POOL_DATA);
@@ -55,11 +57,11 @@ export class CognitoUtil {
     // having to get around both class extension and unions. Therefore, we're going to give
     // developers direct access to the raw, unadulterated CognitoIdentityCredentials
     // object at all times.
-    setCognitoCreds(creds:AWS.CognitoIdentityCredentials) {
+    setCognitoCreds(creds: AWS.CognitoIdentityCredentials) {
         this.cognitoCreds = creds;
     }
 
-    getCognitoCreds(){
+    getCognitoCreds() {
         return this.cognitoCreds;
     }
 
@@ -67,9 +69,9 @@ export class CognitoUtil {
     // CognitoIdentityCredentials object and store it for us. It also returns the object to the caller
     // to avoid unnecessary calls to setCognitoCreds.
 
-    buildCognitoCreds(idTokenJwt:string) {
+    buildCognitoCreds(idTokenJwt: string) {
         let url = 'cognito-idp.' + CognitoUtil._REGION.toLowerCase() + '.amazonaws.com/' + CognitoUtil._USER_POOL_ID;
-        let logins:CognitoIdentity.LoginsMap = {};
+        let logins: CognitoIdentity.LoginsMap = {};
         logins[url] = idTokenJwt;
         let params = {
             IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID, /* required */

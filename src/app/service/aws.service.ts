@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {CognitoUtil, Callback} from "./cognito.service";
+import {Callback, CognitoUtil} from "./cognito.service";
 import * as AWS from "aws-sdk/global";
 
 /**

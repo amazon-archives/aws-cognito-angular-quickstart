@@ -1,15 +1,14 @@
-import {Routes, RouterModule} from "@angular/router";
+import {RouterModule, Routes} from "@angular/router";
 import {ModuleWithProviders} from "@angular/core";
-import {HomeLandingComponent, AboutComponent, HomeComponent} from "./public/home.component";
+import {AboutComponent, HomeComponent, HomeLandingComponent} from "./public/home.component";
 import {SecureHomeComponent} from "./secure/landing/securehome.component";
 import {MyProfileComponent} from "./secure/profile/myprofile.component";
 import {JwtComponent} from "./secure/jwttokens/jwt.component";
 import {UseractivityComponent} from "./secure/useractivity/useractivity.component";
-import {AppComponent} from "./app.component";
 import {LoginComponent} from "./public/auth/login/login.component";
 import {RegisterComponent} from "./public/auth/register/registration.component";
 import {ForgotPassword2Component, ForgotPasswordStep1Component} from "./public/auth/forgot/forgotPassword.component";
-import {RegistrationConfirmationComponent, LogoutComponent} from "./public/auth/confirm/confirmRegistration.component";
+import {LogoutComponent, RegistrationConfirmationComponent} from "./public/auth/confirm/confirmRegistration.component";
 import {ResendCodeComponent} from "./public/auth/resend/resendCode.component";
 import {NewPasswordComponent} from "./public/auth/newpassword/newpassword.component";
 

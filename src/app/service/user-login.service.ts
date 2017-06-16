@@ -1,7 +1,7 @@
-import {Injectable, Inject} from "@angular/core";
+import {Injectable} from "@angular/core";
 import {DynamoDBService} from "./ddb.service";
-import {CognitoUtil, Callback, CognitoCallback, LoggedInCallback} from "./cognito.service";
-import {CognitoUser, AuthenticationDetails} from "amazon-cognito-identity-js";
+import {CognitoCallback, CognitoUtil, LoggedInCallback} from "./cognito.service";
+import {AuthenticationDetails, CognitoUser} from "amazon-cognito-identity-js";
 import * as AWS from "aws-sdk/global";
 import * as STS from "aws-sdk/clients/sts";
 
@@ -30,8 +30,8 @@ export class UserLoginService {
         console.log("UserLoginService: config is " + AWS.config);
         var self = this;
         cognitoUser.authenticateUser(authenticationDetails, {
-            newPasswordRequired: function(userAttributes, requiredAttributes) {
-              callback.cognitoCallback(`User needs to set password.`, null);
+            newPasswordRequired: function (userAttributes, requiredAttributes) {
+                callback.cognitoCallback(`User needs to set password.`, null);
             },
             onSuccess: function (result) {
 
@@ -49,7 +49,7 @@ export class UserLoginService {
                 // chicken and egg problem on our hands. We resolve this problem by "priming" the AWS SDK by calling a
                 // very innocuous API call that forces this behavior.
                 let sts = new STS();
-                sts.getCallerIdentity( function (err,data) {
+                sts.getCallerIdentity(function (err, data) {
                     console.log("UserLoginService: Successfully set the AWS credentials");
                     callback.cognitoCallback(null, result);
                 });

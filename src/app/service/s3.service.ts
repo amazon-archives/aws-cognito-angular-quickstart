@@ -1,5 +1,5 @@
 import {environment} from "../../environments/environment";
-import { CognitoUtil } from "./cognito.service";
+import {CognitoUtil} from "./cognito.service";
 import * as AWS from "aws-sdk/global";
 import * as S3 from "aws-sdk/clients/s3";
 
@@ -10,7 +10,7 @@ import * as S3 from "aws-sdk/clients/s3";
 
 export class S3Service {
 
-    constructor(public cognitoUtil:CognitoUtil) {
+    constructor(public cognitoUtil: CognitoUtil) {
 
     }
 

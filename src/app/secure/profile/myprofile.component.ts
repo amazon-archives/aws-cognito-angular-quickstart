@@ -1,9 +1,8 @@
 import {Component} from "@angular/core";
 import {UserLoginService} from "../../service/user-login.service";
-import {LoggedInCallback, Callback} from "../../service/cognito.service";
+import {Callback, CognitoUtil, LoggedInCallback} from "../../service/cognito.service";
 import {UserParametersService} from "../../service/user-parameters.service";
 import {Router} from "@angular/router";
-import {CognitoUtil} from "../../service/cognito.service"
 
 
 @Component({
