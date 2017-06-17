@@ -27,6 +27,8 @@ Cognito Quickstart
 
 
 ## Getting the code and running it locally
+_This uses the pre-configured AWS resources hosted by AWS_
+
 ```
 # Clone it from github
 git clone --depth 1 git@github.com:awslabs/aws-cognito-angular2-quickstart.git
@@ -56,12 +58,26 @@ cd aws
 ./createResources.sh
 ```
 
-Running the above command will create the necessary AWS resources and build & deploy your code to AWS. It will prompt you to choose your deployment target (S3 or Elastic Beanstalk). 
+Running the above command will create the necessary AWS resources and build & deploy your code to AWS. 
+It will prompt you to choose your deployment target (S3 or Elastic Beanstalk). Choosing 'S3' makes your deployment
+completely serverless, while choosing Elastic Beanstalk will create an EC2 instance that will host this NodeJS app. 
+
+*Caution:* You might incur AWS charges after running the setup script
 
 ## After initially running the ```createResources.sh``` script, use the below commands to rebuild and redeploy
 
-### Update, Build and Deploy to Elastic Beanstalk
+### _S3:_ Update, Build and Deploy
+```
+# Build the project and sync the output with the S3 bucket
+npm run build; cd dist; aws s3 sync . s3://[BUCKET_NAME]/
+```
+```
+# Test your deployed application
+curl –I http://[BUCKET_NAME].s3-website-[REGION].amazonaws.com/
+```
+*or*
 
+### _Beanstalk:_ Update, Build and Deploy
 ```
 # Commit your changes in order to deploy it to your environment
 git add .
@@ -73,12 +89,4 @@ eb deploy
 eb open
 ```
 
-### Update, Build and Deploy to S3
-```
-# Build the project and sync the output with the S3 bucket
-npm run build; cd dist; aws s3 sync . s3://[BUCKET_NAME]/
-```
-```
-# Test your deployed application
-curl –I http://[BUCKET_NAME].s3-website-[REGION].amazonaws.com/
-```
+
