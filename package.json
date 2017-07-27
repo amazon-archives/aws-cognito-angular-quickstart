@@ -48,10 +48,7 @@
     "webpack-dev-server": "2.4.2",
     "webpack-md5-hash": "0.0.5",
     "webpack-merge": "4.1.0",
-    "extract-text-webpack-plugin": "2.1.0"
-
-  },
-  "devDependencies": {
+    "extract-text-webpack-plugin": "2.1.0",
     "@angular/cli": "1.0.0",
     "@angular/compiler-cli": "4.0.0",
     "protractor": "5.1.1",
@@ -62,5 +59,9 @@
     "jasmine-spec-reporter": "2.5.0",
     "@types/jasmine": "2.2.30",
     "@types/selenium-webdriver": "2.44.26"
+
+  },
+  "devDependencies": {
+
   }
 }
