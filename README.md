@@ -89,18 +89,4 @@ eb deploy
 eb open
 ```
 
-## Local Testing
 
-This section contains instructions on how to test the application locally (using mocked services instead of the real AWS services).
-
-### LocalStack
-
-To test this application using [LocalStack](https://github.com/localstack/localstack), you can use the `awslocal` CLI (https://github.com/localstack/awscli-local).
-```
-pip install awscli-local
-```
-Simply parameterize the `./createResources.sh` installation script with `aws_cmd=awslocal`:
-```
-cd aws; aws_cmd=awslocal ./createResources.sh
-```
-Once the code is deployed to the local S3 server, the application is accessible via http://localhost:4572/cognitosample-localapp/index.html (Assuming "localapp" has been chosen as resource name in the previous step)

@@ -1,4 +1,3 @@
-import {environment} from "../../environments/environment";
 import {Injectable} from "@angular/core";
 import {DynamoDBService} from "./ddb.service";
 import {CognitoCallback, CognitoUtil, LoggedInCallback} from "./cognito.service";
@@ -49,11 +48,7 @@ export class UserLoginService {
                 // If the first SDK call we make wants to use our IdentityID, we have a
                 // chicken and egg problem on our hands. We resolve this problem by "priming" the AWS SDK by calling a
                 // very innocuous API call that forces this behavior.
-                let clientParams:any = {};
-                if (environment.sts_endpoint) {
-                    clientParams.endpoint = environment.sts_endpoint;
-                }
-                let sts = new STS(clientParams);
+                let sts = new STS();
                 sts.getCallerIdentity(function (err, data) {
                     console.log("UserLoginService: Successfully set the AWS credentials");
                     callback.cognitoCallback(null, result);

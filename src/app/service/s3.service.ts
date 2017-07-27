@@ -19,15 +19,11 @@ export class S3Service {
             region: environment.bucketRegion,
         });
 
-        let clientParams:any = {
+        var s3 = new S3({
             region: environment.bucketRegion,
             apiVersion: '2006-03-01',
             params: {Bucket: environment.rekognitionBucket}
-        };
-        if (environment.s3_endpoint) {
-            clientParams.endpoint = environment.s3_endpoint;
-        }
-        var s3 = new S3(clientParams);
+        });
 
         return s3
     }
