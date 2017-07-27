@@ -31,11 +31,7 @@ export class DynamoDBService {
             }
         };
 
-        var clientParams:any = {};
-        if (environment.dynamodb_endpoint) {
-            clientParams.endpoint = environment.dynamodb_endpoint;
-        }
-        var docClient = new DynamoDB.DocumentClient(clientParams);
+        var docClient = new DynamoDB.DocumentClient();
         docClient.query(params, onQuery);
 
         function onQuery(err, data) {
@@ -64,14 +60,9 @@ export class DynamoDBService {
 
     write(data: string, date: string, type: string): void {
         console.log("DynamoDBService: writing " + type + " entry");
-
-        let clientParams:any = {
+        var DDB = new DynamoDB({
             params: {TableName: environment.ddbTableName}
-        };
-        if (environment.dynamodb_endpoint) {
-            clientParams.endpoint = environment.dynamodb_endpoint;
-        }
-        var DDB = new DynamoDB(clientParams);
+        });
 
         // Write the item to the table
         var itemParams =
