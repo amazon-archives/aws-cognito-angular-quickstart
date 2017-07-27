@@ -8,6 +8,7 @@ import {
     CognitoUserPool
 } from "amazon-cognito-identity-js";
 import * as AWS from "aws-sdk/global";
+import * as awsservice from "aws-sdk/lib/service";
 import * as CognitoIdentity from "aws-sdk/clients/cognitoidentity";
 
 
@@ -37,7 +38,7 @@ export class CognitoUtil {
     public static _USER_POOL_ID = environment.userPoolId;
     public static _CLIENT_ID = environment.clientId;
 
-    public static _POOL_DATA = {
+    public static _POOL_DATA:any = {
         UserPoolId: CognitoUtil._USER_POOL_ID,
         ClientId: CognitoUtil._CLIENT_ID
     };
@@ -45,6 +46,9 @@ export class CognitoUtil {
     public cognitoCreds: AWS.CognitoIdentityCredentials;
 
     getUserPool() {
+        if (environment.cognito_idp_endpoint) {
+            CognitoUtil._POOL_DATA.endpoint = environment.cognito_idp_endpoint;
+        }
         return new CognitoUserPool(CognitoUtil._POOL_DATA);
     }
 
@@ -71,13 +75,20 @@ export class CognitoUtil {
 
     buildCognitoCreds(idTokenJwt: string) {
         let url = 'cognito-idp.' + CognitoUtil._REGION.toLowerCase() + '.amazonaws.com/' + CognitoUtil._USER_POOL_ID;
+        if (environment.cognito_idp_endpoint) {
+            url = environment.cognito_idp_endpoint + '/' + CognitoUtil._USER_POOL_ID;
+        }
         let logins: CognitoIdentity.LoginsMap = {};
         logins[url] = idTokenJwt;
         let params = {
             IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID, /* required */
             Logins: logins
         };
-        let creds = new AWS.CognitoIdentityCredentials(params);
+        let serviceConfigs : awsservice.ServiceConfigurationOptions = {};
+        if (environment.cognito_identity_endpoint) {
+            serviceConfigs.endpoint = environment.cognito_identity_endpoint;
+        }
+        let creds = new AWS.CognitoIdentityCredentials(params, serviceConfigs);
         this.setCognitoCreds(creds);
         return creds;
     }
