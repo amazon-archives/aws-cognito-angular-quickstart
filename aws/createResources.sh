@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+aws_cmd=${aws_cmd:-aws}
+
 # Bucket name must be all lowercase, and start/end with lowecase letter or number
 # $(echo...) code to work with versions of bash older than 4.0
 
@@ -24,64 +26,63 @@ IDENTITY_POOL_ID=""
 USER_POOL_ID=""
 USER_POOL_CLIENT_ID=""
 
-
 createCognitoResources() {
     # Create a Cognito Identity and Set roles
-    aws cognito-identity create-identity-pool --identity-pool-name $IDENTITY_POOL_NAME --allow-unauthenticated-identities --region $REGION| grep IdentityPoolId | awk '{print $2}' | xargs |sed -e 's/^"//'  -e 's/"$//' -e 's/,$//' > /tmp/poolId
+    $aws_cmd cognito-identity create-identity-pool --identity-pool-name $IDENTITY_POOL_NAME --allow-unauthenticated-identities --region $REGION| grep IdentityPoolId | awk '{print $2}' | xargs |sed -e 's/^"//'  -e 's/"$//' -e 's/,$//' > /tmp/poolId
     IDENTITY_POOL_ID=$(cat /tmp/poolId)
     echo "Created an identity pool with id of " $IDENTITY_POOL_ID
 
     # Create an IAM role for unauthenticated users
     cat unauthrole-trust-policy.json | sed 's/IDENTITY_POOL/'$IDENTITY_POOL_ID'/' > /tmp/unauthrole-trust-policy.json
-    aws iam create-role --role-name $ROLE_NAME_PREFIX-unauthenticated-role --assume-role-policy-document file:///tmp/unauthrole-trust-policy.json > /tmp/iamUnauthRole
+    $aws_cmd iam create-role --role-name $ROLE_NAME_PREFIX-unauthenticated-role --assume-role-policy-document file:///tmp/unauthrole-trust-policy.json > /tmp/iamUnauthRole
     if [ $? -eq 0 ]
     then
         echo "IAM unauthenticated role successfully created"
     else
         echo "Using the existing role ..."
-        aws iam get-role --role-name $ROLE_NAME_PREFIX-unauthenticated-role  > /tmp/iamUnauthRole
-        aws iam update-assume-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --policy-document file:///tmp/unauthrole-trust-policy.json
+        $aws_cmd iam get-role --role-name $ROLE_NAME_PREFIX-unauthenticated-role  > /tmp/iamUnauthRole
+        $aws_cmd iam update-assume-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --policy-document file:///tmp/unauthrole-trust-policy.json
     fi
-    aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --policy-name CognitoPolicy --policy-document file://unauthrole.json
+    $aws_cmd iam put-role-policy --role-name $ROLE_NAME_PREFIX-unauthenticated-role --policy-name CognitoPolicy --policy-document file://unauthrole.json
 
     # Create an IAM role for authenticated users
     cat authrole-trust-policy.json | sed 's/IDENTITY_POOL/'$IDENTITY_POOL_ID'/' > /tmp/authrole-trust-policy.json
-    aws iam create-role --role-name $ROLE_NAME_PREFIX-authenticated-role --assume-role-policy-document file:///tmp/authrole-trust-policy.json > /tmp/iamAuthRole
+    $aws_cmd iam create-role --role-name $ROLE_NAME_PREFIX-authenticated-role --assume-role-policy-document file:///tmp/authrole-trust-policy.json > /tmp/iamAuthRole
     if [ $? -eq 0 ]
     then
         echo "IAM authenticated role successfully created"
     else
         echo "Using the existing role ..."
-        aws iam get-role --role-name $ROLE_NAME_PREFIX-authenticated-role  > /tmp/iamAuthRole
-        aws iam update-assume-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-document file:///tmp/authrole-trust-policy.json
+        $aws_cmd iam get-role --role-name $ROLE_NAME_PREFIX-authenticated-role  > /tmp/iamAuthRole
+        $aws_cmd iam update-assume-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-document file:///tmp/authrole-trust-policy.json
     fi
     cat authrole.json | sed 's~DDB_TABLE_ARN~'$DDB_TABLE_ARN'~' > /tmp/authrole.json
-    aws iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-name CognitoPolicy --policy-document file:///tmp/authrole.json
+    $aws_cmd iam put-role-policy --role-name $ROLE_NAME_PREFIX-authenticated-role --policy-name CognitoPolicy --policy-document file:///tmp/authrole.json
 
     # Create the user pool
-    aws cognito-idp create-user-pool --pool-name $POOL_NAME --auto-verified-attributes email --policies file://user-pool-policy.json --region $REGION > /tmp/$POOL_NAME-create-user-pool
+    $aws_cmd cognito-idp create-user-pool --pool-name $POOL_NAME --auto-verified-attributes email --policies file://user-pool-policy.json --region $REGION > /tmp/$POOL_NAME-create-user-pool
     USER_POOL_ID=$(grep -E '"Id":' /tmp/$POOL_NAME-create-user-pool | awk -F'"' '{print $4}')
     echo "Created user pool with an id of " $USER_POOL_ID
 
     # Create the user pool client
-    aws cognito-idp create-user-pool-client --user-pool-id $USER_POOL_ID --no-generate-secret --client-name webapp --region $REGION > /tmp/$POOL_NAME-create-user-pool-client
+    $aws_cmd cognito-idp create-user-pool-client --user-pool-id $USER_POOL_ID --no-generate-secret --client-name webapp --region $REGION > /tmp/$POOL_NAME-create-user-pool-client
     USER_POOL_CLIENT_ID=$(grep -E '"ClientId":' /tmp/$POOL_NAME-create-user-pool-client | awk -F'"' '{print $4}')
     echo "Created user pool client with id of " $USER_POOL_CLIENT_ID
 
     # Add the user pool and user pool client id to the identity pool
-    aws cognito-identity update-identity-pool --allow-unauthenticated-identities --identity-pool-id $IDENTITY_POOL_ID --identity-pool-name $IDENTITY_POOL_NAME \
+    $aws_cmd cognito-identity update-identity-pool --allow-unauthenticated-identities --identity-pool-id $IDENTITY_POOL_ID --identity-pool-name $IDENTITY_POOL_NAME \
         --cognito-identity-providers ProviderName=cognito-idp.$REGION.amazonaws.com/$USER_POOL_ID,ClientId=$USER_POOL_CLIENT_ID --region $REGION \
         > /tmp/$IDENTITY_POOL_ID-add-user-pool
 
     # Update cognito identity with the roles
     UNAUTH_ROLE_ARN=$(perl -nle 'print $& if m{"Arn":\s*"\K([^"]*)}' /tmp/iamUnauthRole | awk -F'"' '{print $1}')
     AUTH_ROLE_ARN=$(perl -nle 'print $& if m{"Arn":\s*"\K([^"]*)}' /tmp/iamAuthRole | awk -F'"' '{print $1}')
-    aws cognito-identity set-identity-pool-roles --identity-pool-id $IDENTITY_POOL_ID --roles authenticated=$AUTH_ROLE_ARN,unauthenticated=$UNAUTH_ROLE_ARN --region $REGION
+    $aws_cmd cognito-identity set-identity-pool-roles --identity-pool-id $IDENTITY_POOL_ID --roles authenticated=$AUTH_ROLE_ARN,unauthenticated=$UNAUTH_ROLE_ARN --region $REGION
 }
 
 createDDBTable() {
     # Create DDB Table
-    aws dynamodb create-table \
+    $aws_cmd dynamodb create-table \
         --table-name $TABLE_NAME \
         --attribute-definitions \
             AttributeName=userId,AttributeType=S \
@@ -96,7 +97,7 @@ createDDBTable() {
         echo "DynamoDB table successfully created"
     else
         echo "Using the existing table ..."
-        aws dynamodb describe-table --table-name $TABLE_NAME > /tmp/dynamoTable
+        $aws_cmd dynamodb describe-table --table-name $TABLE_NAME > /tmp/dynamoTable
     fi
 
     DDB_TABLE_ARN=$(perl -nle 'print $& if m{"TableArn":\s*"\K([^"]*)}' /tmp/dynamoTable | awk -F'"' '{print $1}')
@@ -128,7 +129,7 @@ EOT
 
 createS3Bucket() {
     # Create the bucket
-    aws s3 mb s3://$BUCKET_NAME/ --region $REGION 2>/tmp/s3-mb-status
+    $aws_cmd s3 mb s3://$BUCKET_NAME/ --region $REGION 2>/tmp/s3-mb-status
     status=$?
 
     if [ $status -eq 0 ]
@@ -152,19 +153,19 @@ createS3Bucket() {
 
 uploadS3Bucket() {
     # Add the ‘website’ configuration and bucket policy
-    aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html  --region $REGION
+    $aws_cmd s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html  --region $REGION
     cat s3-bucket-policy.json | sed 's/BUCKET_NAME/'$BUCKET_NAME'/' > /tmp/s3-bucket-policy.json
-    aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/s3-bucket-policy.json  --region $REGION
+    $aws_cmd s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///tmp/s3-bucket-policy.json  --region $REGION
     #Build the project and sync it up to the bucket
     if [ ! -d "$NPM_DIR" ]; then
         npm install
     fi
     cd ..
     echo "Building the project"
-    ng build
+    ng build $( if [ "$aws_cmd" == "awslocal" ]; then echo "--base-href /$BUCKET_NAME/"; fi )
     cd -
     echo "Syncing files to the S3 bucket from " $ROOT_DIR/dist/
-    aws s3 sync $ROOT_DIR/dist/ s3://$BUCKET_NAME/  --region $REGION
+    $aws_cmd s3 sync $ROOT_DIR/dist/ s3://$BUCKET_NAME/  --region $REGION
 }
 
 printConfig() {
@@ -207,7 +208,13 @@ export const environment = {
     albumName: "usercontent",
     bucketRegion: '$REGION',
 
-    ddbTableName: '$TABLE_NAME'
+    ddbTableName: '$TABLE_NAME',
+
+    cognito_idp_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4590'; fi )',
+    cognito_identity_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4591'; fi )',
+    sts_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4592'; fi )',
+    dynamodb_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4569'; fi )',
+    s3_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4572'; fi )'
 };
 
 EOF
@@ -228,7 +235,13 @@ export const environment = {
     albumName: "usercontent",
     bucketRegion: '$REGION',
 
-    ddbTableName: '$TABLE_NAME'
+    ddbTableName: '$TABLE_NAME',
+
+    cognito_idp_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4590'; fi )',
+    cognito_identity_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4591'; fi )',
+    sts_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4592'; fi )',
+    dynamodb_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4569'; fi )',
+    s3_endpoint: '$( if [ "$aws_cmd" == "awslocal" ]; then echo 'http://localhost:4572'; fi )'
 };
 
 EOF
