@@ -11,6 +11,13 @@ export const environment = {
     albumName: "usercontent",
     bucketRegion: 'us-east-1',
 
-    ddbTableName: 'LoginTrail'
+    ddbTableName: 'LoginTrail',
+
+    cognito_idp_endpoint: '',
+    cognito_identity_endpoint: '',
+    sts_endpoint: '',
+    dynamodb_endpoint: '',
+    s3_endpoint: ''
+
 };
 
