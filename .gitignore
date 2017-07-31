@@ -8,6 +8,7 @@
 /node_modules
 /src/bower_components
 /public/bower_components
+package-lock.json
 
 # IDEs and editors
 /.idea
