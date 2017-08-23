@@ -108,6 +108,7 @@ createEBResources() {
 
     # Commit changes made
     cd $ROOT_DIR
+    npm run-script build
 
     # Create Elastic Beanstalk application
     eb init $ROOT_NAME --region $REGION --platform $EB_PLATFORM
