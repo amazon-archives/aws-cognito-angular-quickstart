@@ -18,7 +18,7 @@ Cognito Quickstart
 * [Bootstrap](http://getbootstrap.com/)
 
 ## AWS Setup
-##### Install the required tools
+##### Install the required tools (the installation script only runs on Linux and Mac)
 * Create an AWS account
 * Install [npm](https://www.npmjs.com/)
 * [Install or update your aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) 
