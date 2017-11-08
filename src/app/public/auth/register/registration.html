@@ -16,6 +16,11 @@
                [(ngModel)]="registrationUser.email" [ngModelOptions]="{standalone: true}">
     </div>
     <div class="form-group">
+        <label class="control-label" for="signupPhone">Phone number</label>
+        <input id="signupPhone" type="text" maxlength="13" class="form-control"
+               [(ngModel)]="registrationUser.phone_number" [ngModelOptions]="{standalone: true}">
+    </div>
+    <div class="form-group">
         <label class="control-label" for="signupPassword">Password</label>
         <input id="signupPassword" type="password" maxlength="25" class="form-control"
                placeholder="at least 8 characters" length="40" [(ngModel)]="registrationUser.password"

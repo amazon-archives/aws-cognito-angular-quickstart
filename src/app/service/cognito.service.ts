@@ -1,12 +1,6 @@
-import {Injectable} from "@angular/core";
-import {environment} from "../../environments/environment";
-import {
-    AuthenticationDetails,
-    CognitoIdentityServiceProvider,
-    CognitoUser,
-    CognitoUserAttribute,
-    CognitoUserPool
-} from "amazon-cognito-identity-js";
+import { Injectable } from "@angular/core";
+import { environment } from "../../environments/environment";
+import { CognitoUserPool } from "amazon-cognito-identity-js";
 import * as AWS from "aws-sdk/global";
 import * as awsservice from "aws-sdk/lib/service";
 import * as CognitoIdentity from "aws-sdk/clients/cognitoidentity";
@@ -18,14 +12,23 @@ import * as CognitoIdentity from "aws-sdk/clients/cognitoidentity";
 
 export interface CognitoCallback {
     cognitoCallback(message: string, result: any): void;
+
+    handleMFAStep?(challengeName: string, challengeParameters: ChallengeParameters, callback: (confirmationCode: string) => any): void;
 }
 
 export interface LoggedInCallback {
     isLoggedIn(message: string, loggedIn: boolean): void;
 }
 
+export interface ChallengeParameters {
+    CODE_DELIVERY_DELIVERY_MEDIUM: string;
+
+    CODE_DELIVERY_DESTINATION: string;
+}
+
 export interface Callback {
     callback(): void;
+
     callbackWithParam(result: any): void;
 }
 
@@ -38,7 +41,7 @@ export class CognitoUtil {
     public static _USER_POOL_ID = environment.userPoolId;
     public static _CLIENT_ID = environment.clientId;
 
-    public static _POOL_DATA:any = {
+    public static _POOL_DATA: any = {
         UserPoolId: CognitoUtil._USER_POOL_ID,
         ClientId: CognitoUtil._CLIENT_ID
     };
@@ -56,7 +59,7 @@ export class CognitoUtil {
         return this.getUserPool().getCurrentUser();
     }
 
-    // AWS Stores Credentials in many ways, and with TypeScript this means that 
+    // AWS Stores Credentials in many ways, and with TypeScript this means that
     // getting the base credentials we authenticated with from the AWS globals gets really murky,
     // having to get around both class extension and unions. Therefore, we're going to give
     // developers direct access to the raw, unadulterated CognitoIdentityCredentials
@@ -84,7 +87,7 @@ export class CognitoUtil {
             IdentityPoolId: CognitoUtil._IDENTITY_POOL_ID, /* required */
             Logins: logins
         };
-        let serviceConfigs : awsservice.ServiceConfigurationOptions = {};
+        let serviceConfigs = <awsservice.ServiceConfigurationOptions>{};
         if (environment.cognito_identity_endpoint) {
             serviceConfigs.endpoint = environment.cognito_identity_endpoint;
         }
@@ -102,21 +105,22 @@ export class CognitoUtil {
         if (callback == null) {
             throw("CognitoUtil: callback in getAccessToken is null...returning");
         }
-        if (this.getCurrentUser() != null)
+        if (this.getCurrentUser() != null) {
             this.getCurrentUser().getSession(function (err, session) {
                 if (err) {
                     console.log("CognitoUtil: Can't set the credentials:" + err);
                     callback.callbackWithParam(null);
                 }
-
                 else {
                     if (session.isValid()) {
                         callback.callbackWithParam(session.getAccessToken().getJwtToken());
                     }
                 }
             });
-        else
+        }
+        else {
             callback.callbackWithParam(null);
+        }
     }
 
     getIdToken(callback: Callback): void {

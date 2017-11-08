@@ -28,7 +28,7 @@
     "@angular/router": "4.0.0",
     "@types/jasmine": "2.2.30",
     "@types/selenium-webdriver": "2.44.26",
-    "amazon-cognito-identity-js": "^1.10.0",
+    "amazon-cognito-identity-js": "1.21.0",
     "aws-sdk": "2.67.0",
     "body-parser": "~1.15.1",
     "codelyzer": "2.0.1",

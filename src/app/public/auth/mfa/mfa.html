@@ -1,0 +1,13 @@
+<div class="form-group">
+    <div>
+        Authentication code has been sent to: {{destination}}
+    </div>
+    <div class="form-group">
+        <input id="mfaCode" required type="text" maxlength="10" class="form-control"
+               length="40" #code>
+    </div>
+    <button (click)="onSubmit(code.value)" type="submit" class="btn btn-info btn-block">
+        Submit code
+    </button>
+</div>
+

@@ -27,6 +27,10 @@ export class UserRegistrationService {
         };
         attributeList.push(new CognitoUserAttribute(dataEmail));
         attributeList.push(new CognitoUserAttribute(dataNickname));
+        attributeList.push(new CognitoUserAttribute({
+            Name: 'phone_number',
+            Value: user.phone_number
+        }));
 
         this.cognitoUtil.getUserPool().signUp(user.email, user.password, attributeList, null, function (err, result) {
             if (err) {

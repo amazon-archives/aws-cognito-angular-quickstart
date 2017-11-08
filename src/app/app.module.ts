@@ -21,6 +21,7 @@ import {ForgotPassword2Component, ForgotPasswordStep1Component} from "./public/a
 import {LogoutComponent, RegistrationConfirmationComponent} from "./public/auth/confirm/confirmRegistration.component";
 import {ResendCodeComponent} from "./public/auth/resend/resendCode.component";
 import {NewPasswordComponent} from "./public/auth/newpassword/newpassword.component";
+import { MFAComponent } from './public/auth/mfa/mfa.component';
 
 
 @NgModule({
@@ -33,6 +34,7 @@ import {NewPasswordComponent} from "./public/auth/newpassword/newpassword.compon
         ForgotPasswordStep1Component,
         ForgotPassword2Component,
         RegisterComponent,
+        MFAComponent,
         AboutComponent,
         HomeLandingComponent,
         HomeComponent,
