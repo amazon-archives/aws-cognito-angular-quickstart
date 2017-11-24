@@ -1,7 +1,15 @@
 {
-  "name": "aws-cognito-angular2-quickstart",
-  "author": "Vladimir Budilov",
+  "name": "aws-cognito-angular-quickstart",
   "version": "1.0.0",
+  "author": "Vladimir Budilov",
+  "homepage": "http://cognito.budilov.com",
+  "contributors": [
+    {
+      "name": "Vladimir Budilov",
+      "url": "http://budilov.com"
+    }
+  ],
+  "description": "A single-page web app, based on angular4, utilizing Amazon Cognito, S3, and DynamoDB (serverless architecture)",
   "angular-cli": {},
   "scripts": {
     "start": "ng serve --port 3333",
