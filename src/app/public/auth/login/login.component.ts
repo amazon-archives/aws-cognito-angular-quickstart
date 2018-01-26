@@ -1,8 +1,8 @@
-import {Component, OnInit} from "@angular/core";
-import {Router} from "@angular/router";
-import {UserLoginService} from "../../../service/user-login.service";
-import {CognitoCallback, LoggedInCallback} from "../../../service/cognito.service";
-import {DynamoDBService} from "../../../service/ddb.service";
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
+import { UserLoginService } from "../../../service/user-login.service";
+import { ChallengeParameters, CognitoCallback, LoggedInCallback } from "../../../service/cognito.service";
+import { DynamoDBService } from "../../../service/ddb.service";
 
 @Component({
     selector: 'awscognito-angular2-app',
@@ -12,6 +12,11 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit
     email: string;
     password: string;
     errorMessage: string;
+    mfaStep = false;
+    mfaData = {
+        destination: '',
+        callback: null
+    };
 
     constructor(public router: Router,
                 public ddb: DynamoDBService,
@@ -51,8 +56,27 @@ export class LoginComponent implements CognitoCallback, LoggedInCallback, OnInit
         }
     }
 
+    handleMFAStep(challengeName: string, challengeParameters: ChallengeParameters, callback: (confirmationCode: string) => any): void {
+        this.mfaStep = true;
+        this.mfaData.destination = challengeParameters.CODE_DELIVERY_DESTINATION;
+        this.mfaData.callback = (code: string) => {
+            if (code == null || code.length === 0) {
+                this.errorMessage = "Code is required";
+                return;
+            }
+            this.errorMessage = null;
+            callback(code);
+        };
+    }
+
     isLoggedIn(message: string, isLoggedIn: boolean) {
-        if (isLoggedIn)
+        if (isLoggedIn) {
             this.router.navigate(['/securehome']);
+        }
+    }
+
+    cancelMFA(): boolean {
+        this.mfaStep = false;
+        return false;   //necessary to prevent href navigation
     }
 }

@@ -1,19 +1,47 @@
-import {environment} from "../../environments/environment";
-import {Injectable} from "@angular/core";
-import {DynamoDBService} from "./ddb.service";
-import {CognitoCallback, CognitoUtil, LoggedInCallback} from "./cognito.service";
-import {AuthenticationDetails, CognitoUser} from "amazon-cognito-identity-js";
+import { environment } from "../../environments/environment";
+import { Injectable } from "@angular/core";
+import { DynamoDBService } from "./ddb.service";
+import { CognitoCallback, CognitoUtil, LoggedInCallback } from "./cognito.service";
+import { AuthenticationDetails, CognitoUser, CognitoUserSession } from "amazon-cognito-identity-js";
 import * as AWS from "aws-sdk/global";
 import * as STS from "aws-sdk/clients/sts";
 
 @Injectable()
 export class UserLoginService {
 
+    private onLoginSuccess = (callback: CognitoCallback, session: CognitoUserSession) => {
+
+        console.log("In authenticateUser onSuccess callback");
+
+        AWS.config.credentials = this.cognitoUtil.buildCognitoCreds(session.getIdToken().getJwtToken());
+
+        // So, when CognitoIdentity authenticates a user, it doesn't actually hand us the IdentityID,
+        // used by many of our other handlers. This is handled by some sly underhanded calls to AWS Cognito
+        // API's by the SDK itself, automatically when the first AWS SDK request is made that requires our
+        // security credentials. The identity is then injected directly into the credentials object.
+        // If the first SDK call we make wants to use our IdentityID, we have a
+        // chicken and egg problem on our hands. We resolve this problem by "priming" the AWS SDK by calling a
+        // very innocuous API call that forces this behavior.
+        let clientParams: any = {};
+        if (environment.sts_endpoint) {
+            clientParams.endpoint = environment.sts_endpoint;
+        }
+        let sts = new STS(clientParams);
+        sts.getCallerIdentity(function (err, data) {
+            console.log("UserLoginService: Successfully set the AWS credentials");
+            callback.cognitoCallback(null, session);
+        });
+    }
+
+    private onLoginError = (callback: CognitoCallback, err) => {
+        callback.cognitoCallback(err.message, null);
+    }
+
     constructor(public ddb: DynamoDBService, public cognitoUtil: CognitoUtil) {
     }
 
     authenticate(username: string, password: string, callback: CognitoCallback) {
-        console.log("UserLoginService: starting the authentication")
+        console.log("UserLoginService: starting the authentication");
 
         let authenticationData = {
             Username: username,
@@ -29,40 +57,18 @@ export class UserLoginService {
         console.log("UserLoginService: Params set...Authenticating the user");
         let cognitoUser = new CognitoUser(userData);
         console.log("UserLoginService: config is " + AWS.config);
-        var self = this;
         cognitoUser.authenticateUser(authenticationDetails, {
-            newPasswordRequired: function (userAttributes, requiredAttributes) {
-                callback.cognitoCallback(`User needs to set password.`, null);
-            },
-            onSuccess: function (result) {
-
-                console.log("In authenticateUser onSuccess callback");
-
-                let creds = self.cognitoUtil.buildCognitoCreds(result.getIdToken().getJwtToken());
-
-                AWS.config.credentials = creds;
-
-                // So, when CognitoIdentity authenticates a user, it doesn't actually hand us the IdentityID,
-                // used by many of our other handlers. This is handled by some sly underhanded calls to AWS Cognito
-                // API's by the SDK itself, automatically when the first AWS SDK request is made that requires our
-                // security credentials. The identity is then injected directly into the credentials object.
-                // If the first SDK call we make wants to use our IdentityID, we have a
-                // chicken and egg problem on our hands. We resolve this problem by "priming" the AWS SDK by calling a
-                // very innocuous API call that forces this behavior.
-                let clientParams:any = {};
-                if (environment.sts_endpoint) {
-                    clientParams.endpoint = environment.sts_endpoint;
-                }
-                let sts = new STS(clientParams);
-                sts.getCallerIdentity(function (err, data) {
-                    console.log("UserLoginService: Successfully set the AWS credentials");
-                    callback.cognitoCallback(null, result);
+            newPasswordRequired: (userAttributes, requiredAttributes) => callback.cognitoCallback(`User needs to set password.`, null),
+            onSuccess: result => this.onLoginSuccess(callback, result),
+            onFailure: err => this.onLoginError(callback, err),
+            mfaRequired: (challengeName, challengeParameters) => {
+                callback.handleMFAStep(challengeName, challengeParameters, (confirmationCode: string) => {
+                    cognitoUser.sendMFACode(confirmationCode, {
+                        onSuccess: result => this.onLoginSuccess(callback, result),
+                        onFailure: err => this.onLoginError(callback, err)
+                    });
                 });
-
-            },
-            onFailure: function (err) {
-                callback.cognitoCallback(err.message, null);
-            },
+            }
         });
     }
 
@@ -134,5 +140,4 @@ export class UserLoginService {
             callback.isLoggedIn("Can't retrieve the CurrentUser", false);
         }
     }
-
 }
