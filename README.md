@@ -1,5 +1,9 @@
 Cognito Quickstart
 ===================================================
+## Author: Vladimir Budilov
+[LinkedIn](https://www.linkedin.com/in/vbudilov/)
+
+[Medium](https://medium.com/@budilov)
 
 ## What does this app do?
 ![QuickStart Angular2 Cognito App](/aws/meta/Cognito-Angular2-QuickStart.png?raw=true)
