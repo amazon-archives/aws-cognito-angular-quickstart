@@ -1,6 +1,7 @@
 Cognito Quickstart
 ===================================================
 #### Creator: Vladimir Budilov
+* [YouTube](https://www.youtube.com/channel/UCBl-ENwdTlUsLY05yGgXyxw)
 * [LinkedIn](https://www.linkedin.com/in/vbudilov/)
 * [Medium](https://medium.com/@budilov)
 
